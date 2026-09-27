@@ -6,6 +6,10 @@ Possiamo costruire un sistema affidabile e ben organizzato che risolve il proble
 
 **Stiamo scegliendo la tecnologia per risolvere un problema compreso oppure stiamo adattando il problema alla tecnologia che vogliamo usare?**
 
+![Due percorsi a confronto: problema del cliente, regole e vincoli, tecnologia adatta; oppure tecnologia preferita, problema reinterpretato, soluzione da giustificare.](../diagrams/business-before-architecture/problem-or-technology.svg)
+
+*Figura 1 — Partire da una tecnologia già scelta rischia di trasformare la comprensione del problema in una ricerca di giustificazioni.*
+
 ## La richiesta iniziale non è ancora il problema
 
 Immaginiamo un cliente che voglia una piccola applicazione Todo per il proprio gruppo di lavoro. Durante la prima conversazione chiede notifiche, una dashboard e la possibilità di creare attività senza limiti. Sono funzionalità possibili, ma manca il motivo per cui servono.
@@ -84,7 +88,7 @@ L'esempio delle richieste contemporanee richiede inoltre un meccanismo di coordi
 
 ![Il percorso parte dal problema e dalle persone coinvolte, passa attraverso esempi e regole condivise e arriva a una decisione tecnica. Un percorso di ritorno riporta risultati e nuove domande al confronto con cliente e utenti.](../diagrams/business-before-architecture/decision-loop.svg)
 
-*Figura 1 — La comprensione orienta le scelte tecniche; l'uso del prodotto e gli esperimenti permettono di rivederla.*
+*Figura 2 — La comprensione orienta le scelte tecniche; l'uso del prodotto e gli esperimenti permettono di rivederla.*
 
 La regola dei tre todo, da sola, non ci dice quanti servizi distribuire o quale framework usare. Per queste decisioni servono altre informazioni: volumi attesi, disponibilità necessaria, competenze del team, tempi di consegna e frequenza dei rilasci. Anche qui chiediamo conseguenze concrete: cosa comporterebbe un'ora di indisponibilità? Quali operazioni devono rispondere rapidamente, e per chi?
 
