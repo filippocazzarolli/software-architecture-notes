@@ -125,4 +125,6 @@ Questi segnali giustificano una valutazione, non rendono automatica l'estrazione
 
 ---
 
+[Capitolo precedente: Prima dell'architettura: capire il problema di business](business-before-architecture.md)
+
 [Torna all'indice dei capitoli](../README.md#capitoli)
