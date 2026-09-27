@@ -1,44 +1,44 @@
-# Software Architecture Notes
+# Appunti di architettura software
 
-Short, practical notes about software architecture, Domain-Driven Design, CQRS, and distributed systems.
+Appunti brevi e pratici su architettura software, Domain-Driven Design, CQRS e sistemi distribuiti.
 
-The focus is on the decisions behind architectural patterns: what problem they solve, when they introduce unnecessary complexity, and which trade-offs they bring.
+L'attenzione è sulle decisioni alla base dei pattern architetturali: quali problemi risolvono, quando introducono complessità inutile e quali compromessi comportano.
 
-Written for experienced developers, technical leads, architects, and engineering managers who need to make and explain architectural decisions.
+Questi articoli si rivolgono a sviluppatori esperti, responsabili tecnici, architetti software e responsabili dei team di sviluppo che devono prendere e spiegare decisioni architetturali.
 
-## Approach
+## Approccio
 
-Each article starts with a concrete problem, considers the simplest viable solution, and ends with a decision supported by explicit constraints and trade-offs.
+Ogni articolo parte da un problema concreto, considera la soluzione praticabile più semplice e si conclude con una decisione basata su vincoli e compromessi espliciti.
 
 ```text
-Context → Problem → Constraints → Options → Trade-offs → Decision
+Contesto → Problema → Vincoli → Opzioni → Compromessi → Decisione
 ```
 
-Examples stay small and use TypeScript, with NestJS and PostgreSQL only where they help explain the decision. The recurring domain is a Todo application with one business rule: **a user cannot have more than three active todos**.
+Gli esempi rimangono piccoli e usano TypeScript, con NestJS e PostgreSQL solo dove aiutano a spiegare la decisione. Il dominio ricorrente è un'applicazione Todo con una regola di business: **un utente non può avere più di tre todo attivi**.
 
-## Chapters
+## Capitoli
 
-No articles are published yet. The first chapter has an initial outline; the remaining chapters are planned.
+Il primo capitolo è disponibile, con diagrammi e un esempio pratico; gli altri capitoli sono in programma.
 
-| # | Chapter | Central question | Status |
+| # | Capitolo | Domanda centrale | Stato |
 | --- | --- | --- | --- |
-| 1 | [When a Modular Monolith Is Enough](articles/modular-monolith.md) | Do we need independent services, or strong module boundaries? | Outline |
-| 2 | When CQRS Is Overkill | Does the read/write model justify the added complexity? | Planned |
-| 3 | Domain Events Are Not Integration Events | Should an internal domain concept become a public contract? | Planned |
-| 4 | Why Saving Data and Publishing an Event Is Hard | How do we connect a database transaction with reliable messaging? | Planned |
-| 5 | Bounded Contexts Are More Than Folders | Is the model boundary visible and enforceable in code? | Planned |
-| 6 | Your Domain Should Not Know About HTTP | Would the domain still make sense without HTTP? | Planned |
-| 7 | Testing Architecture, Not Just Business Logic | How do we prevent architectural boundaries from eroding? | Planned |
-| 8 | Where Should a Transaction End? | Which operations need to be immediately consistent? | Planned |
-| 9 | Microservices Are an Operational Decision Too | Which benefits justify the operational cost of distribution? | Planned |
+| 1 | [Quando basta un monolite modulare](articles/modular-monolith.md) | Ci servono servizi indipendenti o confini più chiari tra moduli? | Completato |
+| 2 | Quando CQRS è eccessivo | Il modello di lettura e scrittura giustifica la complessità aggiuntiva? | In programma |
+| 3 | Gli eventi di dominio non sono eventi di integrazione | Un concetto interno al dominio dovrebbe diventare un contratto pubblico? | In programma |
+| 4 | Perché salvare dati e pubblicare un evento è difficile | Come colleghiamo una transazione del database a un sistema di messaggistica affidabile? | In programma |
+| 5 | I bounded context sono più di semplici cartelle | Il confine del modello è visibile e verificabile nel codice? | In programma |
+| 6 | Il dominio non dovrebbe conoscere HTTP | Il dominio avrebbe ancora senso senza HTTP? | In programma |
+| 7 | Testare l'architettura, oltre alla logica di business | Come impediamo che i confini architetturali si erodano? | In programma |
+| 8 | Dove dovrebbe finire una transazione? | Quali operazioni richiedono consistenza immediata? | In programma |
+| 9 | I microservizi sono anche una decisione operativa | Quali benefici giustificano il costo operativo di un sistema distribuito? | In programma |
 
-## Repository layout
+## Struttura del repository
 
 ```text
 articles/
-└── modular-monolith.md    First chapter outline
-examples/                 Reserved for small, standalone examples
-diagrams/                 Reserved for diagrams that need separate files
+└── modular-monolith.md    Primo capitolo
+examples/                 Riservata a piccoli esempi autonomi
+diagrams/                 Illustrazioni SVG richiamate negli articoli
 ```
 
-Chapters are developed incrementally. Code and diagrams will be added when they clarify a specific architectural decision.
+I capitoli vengono sviluppati progressivamente. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione architetturale.
