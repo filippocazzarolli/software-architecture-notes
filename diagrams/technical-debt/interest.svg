@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="520" viewBox="0 0 1040 520" role="img" aria-labelledby="title desc">
+  <title id="title">Il debito si gestisce finché è scritto</title>
+  <desc id="desc">Tre momenti del debito tecnico: contrarlo con un motivo e una condizione di rimborso, conviverci misurando gli interessi, rimborsarlo quando la condizione scatta. Una freccia di ritorno indica che ogni nuovo debito genera una nuova voce nel registro. Una fascia in basso ricorda il debito che non si ripaga: codice da buttare o che non cambia mai, che resta scritto con una data di revisione.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+    <marker id="feedback" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#14766d" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="520" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">12 / DEBITO TECNICO</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Il debito si gestisce finché è scritto</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Ogni voce del registro ha un interesse osservato e una condizione di rimborso.</text>
+
+    <rect x="32" y="146" width="300" height="190" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+    <rect x="370" y="146" width="300" height="190" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="708" y="146" width="300" height="190" rx="12" fill="#e8f5f1" stroke="#91c9bd"/>
+
+    <text x="52" y="176" font-size="14" font-weight="700" fill="#355b91">01</text>
+    <text x="52" y="206" font-size="21" font-weight="700">Contrarre</text>
+    <text x="52" y="240" font-size="15" fill="#52647a">Deliberato, con un motivo</text>
+    <text x="52" y="262" font-size="15" fill="#52647a">Registrato subito</text>
+    <text x="52" y="284" font-size="15" fill="#52647a">Con una condizione di rimborso</text>
+
+    <text x="390" y="176" font-size="14" font-weight="700" fill="#52647a">02</text>
+    <text x="390" y="206" font-size="21" font-weight="700">Convivere</text>
+    <text x="390" y="240" font-size="15" fill="#52647a">Interessi misurati:</text>
+    <text x="390" y="262" font-size="15" fill="#52647a">tempo per modifica, difetti,</text>
+    <text x="390" y="284" font-size="15" fill="#52647a">zone calde che si allargano</text>
+
+    <text x="728" y="176" font-size="14" font-weight="700" fill="#14766d">03</text>
+    <text x="728" y="206" font-size="21" font-weight="700">Rimborsare</text>
+    <text x="728" y="240" font-size="15" fill="#52647a">Quando la condizione scatta</text>
+    <text x="728" y="262" font-size="15" fill="#52647a">Prima della funzionalità</text>
+    <text x="728" y="284" font-size="15" fill="#52647a">Con una quota fissa per iterazione</text>
+
+    <path d="M332 241 L366 241" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M670 241 L704 241" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M858 336 L858 358 L182 358 L182 340" fill="none" stroke="#14766d" stroke-width="1.5" marker-end="url(#feedback)"/>
+    <text x="520" y="352" font-size="14" text-anchor="middle" fill="#14766d">Nuovo debito, nuova voce nel registro</text>
+
+    <rect x="32" y="384" width="976" height="66" rx="12" fill="#fff" stroke="#bbc9d8" stroke-dasharray="6 4"/>
+    <text x="52" y="411" font-size="15" font-weight="700">Il debito che non si ripaga</text>
+    <text x="52" y="434" font-size="15" fill="#52647a">Codice da buttare via, codice che non cambia mai, prodotto in dismissione: resta nel registro, con una data di revisione.</text>
+
+    <text x="36" y="496" font-size="15" fill="#52647a">Il capitale è difficile da stimare. Gli interessi si misurano, e sono loro a decidere l'ordine dei rimborsi.</text>
+  </g>
+</svg>

@@ -18,7 +18,7 @@ Gli esempi rimangono piccoli e usano TypeScript, con NestJS e PostgreSQL solo do
 
 ## Capitoli
 
-Tutti e undici i capitoli sono disponibili, con diagrammi ed esempi pratici.
+I dodici capitoli hanno diagrammi ed esempi pratici; la colonna Stato indica quali sono ancora in bozza.
 
 | # | Capitolo | Domanda centrale | Stato |
 | --- | --- | --- | --- |
@@ -33,6 +33,7 @@ Tutti e undici i capitoli sono disponibili, con diagrammi ed esempi pratici.
 | 9 | [Dove dovrebbe finire una transazione?](articles/transactions-eventual-consistency.md) | Quali operazioni richiedono consistenza immediata? | Completato |
 | 10 | [I microservizi sono anche una decisione operativa](articles/distributed-systems-cost.md) | Quali benefici giustificano il costo operativo di un sistema distribuito? | Completato |
 | 11 | [Dalla palla di fango ai confini espliciti](articles/from-big-ball-of-mud.md) | Da dove si comincia a mettere ordine in un sistema esistente, e fino a dove conviene arrivare? | Bozza |
+| 12 | [Il debito tecnico si paga con gli interessi](articles/technical-debt.md) | Quanto debito possiamo permetterci, e chi ne paga gli interessi? | Bozza |
 
 ## Roadmap
 
@@ -60,9 +61,10 @@ articles/
 ├── architecture-boundary-tests.md        Ottavo capitolo
 ├── transactions-eventual-consistency.md  Nono capitolo
 ├── distributed-systems-cost.md           Decimo capitolo
-└── from-big-ball-of-mud.md               Undicesimo capitolo
+├── from-big-ball-of-mud.md               Undicesimo capitolo
+└── technical-debt.md                     Dodicesimo capitolo
 examples/                                 Riservata a piccoli esempi autonomi
 diagrams/                                 Illustrazioni SVG richiamate negli articoli
 ```
 
-I primi dieci capitoli seguono un percorso dal problema di business ai costi operativi delle scelte architetturali; l'undicesimo applica quel percorso a un sistema esistente. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione.
+I primi dieci capitoli seguono un percorso dal problema di business ai costi operativi delle scelte architetturali; l'undicesimo applica quel percorso a un sistema esistente e il dodicesimo spiega come evitare di tornarci. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione.

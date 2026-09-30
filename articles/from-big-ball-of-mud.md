@@ -131,4 +131,6 @@ Rivedremo la decisione se le zone calde si spostano, se il numero delle eccezion
 
 [Capitolo precedente: I microservizi sono anche una decisione operativa](distributed-systems-cost.md)
 
+[Capitolo successivo: Il debito tecnico si paga con gli interessi](technical-debt.md)
+
 [Torna all'indice dei capitoli](../README.md#capitoli)

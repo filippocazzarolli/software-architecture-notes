@@ -1,0 +1,77 @@
+# Il debito tecnico si paga con gli interessi
+
+Per consegnare la prima versione in tempo, il controllo sui tre todo attivi finisce nel controller HTTP: due righe, un solo ingresso, funziona. Tre mesi dopo arriva l'importazione batch. Chi la scrive non trova la regola dove se l'aspetta, la riscrive a modo suo, e il sistema ha due versioni del limite con esiti diversi. Il «lo sistemiamo dopo» detto a marzo non è mai arrivato.
+
+Ward Cunningham ha proposto la metafora [nel 1992](http://c2.com/doc/oopsla92.html): consegnare codice non ancora giusto è come indebitarsi. Un po' di debito accelera lo sviluppo, purché venga ripagato presto. Il pericolo nasce quando non viene ripagato, perché ogni minuto speso su quel codice conta come interesse; intere organizzazioni, scrive, possono fermarsi sotto il peso del debito accumulato.
+
+**Quanto debito possiamo permetterci, e chi ne paga gli interessi?**
+
+## Il problema: non il debito, gli interessi
+
+Il debito in sé non è un errore. La regola nel controller era una scelta ragionevole per una versione con un solo ingresso. Il costo è arrivato dopo, e a ogni modifica: chi tocca la creazione dei todo spende tempo per capire dove stia la regola, e ogni tanto la sbaglia. Sono gli interessi.
+
+Il pericolo dell'accumulo è che gli interessi crescono con ogni voce e con ogni modifica. A un certo punto la capacità del team va tutta lì, le funzionalità rallentano e sul tavolo arriva la proposta di riscrivere tutto, da cui parte il [capitolo precedente](from-big-ball-of-mud.md).
+
+Non tutto il debito nasce da una decisione. Martin Fowler, nel [Technical Debt Quadrant](https://martinfowler.com/bliki/TechnicalDebtQuadrant.html), distingue il debito deliberato da quello accidentale e, in entrambi i casi, il prudente dallo sconsiderato. La regola nel controller è deliberata e prudente: il team sapeva cosa stava facendo e aveva valutato che consegnare prima valesse il costo. La classe `User` condivisa tra Account e Todo del [capitolo sui bounded context](bounded-contexts.md) è accidentale: nessuno l'ha scelta, è emersa quando il team ha capito meglio il dominio. Il debito sconsiderato, preso senza sapere che esistesse un'alternativa, non ha una voce da nessuna parte: lo si scopre dagli interessi.
+
+## La soluzione più semplice: scrivere il debito quando lo si contrae
+
+Il debito che fa più danni è quello che nessuno ricorda. La misura minima è scriverlo nel momento in cui lo si prende, con cinque informazioni:
+
+```text
+Cosa         La regola dei tre todo attivi vive nel controller HTTP
+Perché       Consegnare la v1 con un solo ingresso; spostarla costava un giorno
+Chi          Il team Todo, con un referente
+Interessi    Ogni modifica alla creazione richiede di ricordare dove sta la regola
+Condizione   Da ripagare prima di aggiungere un secondo ingresso (CLI, import, job)
+```
+
+Un file versionato accanto al codice basta, come per la [decisione registrata nel primo capitolo](business-before-architecture.md#la-decisione-partire-dal-minimo-che-abbiamo-compreso). Non è un elenco di desideri: ogni voce nomina un interesse che qualcuno sta pagando e una condizione che rende il rimborso urgente. Una voce senza interessi osservabili non è debito, è una preferenza.
+
+## Misurare gli interessi, non il capitale
+
+Il capitale, cioè quanto costerebbe sistemare tutto, è quasi impossibile da stimare e non serve. Gli interessi si misurano, con le stesse grandezze del capitolo precedente: il tempo di una modifica tipica nelle zone calde, i difetti che nascono lì, i file che la storia dei commit mostra cambiare sempre insieme. Un segnale meno numerico ma affidabile è la paura: il codice che «è meglio non toccare» chiede interessi a ogni funzionalità che gli passa vicino.
+
+Il troppo si riconosce da tre segnali. La quota di ogni iterazione spesa a spegnere incendi supera quella dedicata alle funzionalità. Le zone calde si allargano invece di restare confinate. Il registro cresce per due iterazioni di seguito senza che una voce venga chiusa. A quel punto il debito non è più uno strumento: decide lui cosa il team può fare.
+
+![Tre momenti del debito: contrarlo con motivo e condizione, conviverci misurando gli interessi, rimborsarlo quando la condizione scatta. Una freccia di ritorno indica che ogni nuovo debito genera una nuova voce; una fascia in basso ricorda il debito che non si ripaga.](../diagrams/technical-debt/interest.svg)
+
+*Figura 1 — Il registro tiene insieme i tre momenti. Il debito che non si ripaga resta scritto, con una data di revisione.*
+
+## Un esempio: la condizione scatta
+
+Arriva la richiesta dell'importazione batch. Nel registro c'è la condizione «prima di un secondo ingresso»: il rimborso viene prima della funzionalità, non dopo. Costa il giorno stimato a marzo. La regola diventa un caso d'uso con il suo [errore di dominio](domain-http-error-mapping.md#la-soluzione-più-semplice-un-errore-significativo) e il [protocollo di coordinamento](modular-monolith.md#dove-vive-la-regola-dei-tre-todo-attivi), e l'importazione lo chiama esattamente come il controller.
+
+Senza il registro la stessa storia va diversamente: l'importazione nasce con la propria copia della regola, le due copie divergono, e il giorno risparmiato a marzo diventa le settimane del capitolo precedente. La differenza non è la bravura del team. È che la condizione era scritta e qualcuno l'ha letta.
+
+Il debito accidentale entra nel registro quando lo si scopre. Il giorno in cui Account aggiunge lo stato di verifica alla classe `User` condivisa e Todo deve ricompilare, la voce nasce con i suoi interessi (ogni modifica a `User` coinvolge due moduli) e una condizione (prima che un terzo modulo la importi).
+
+## Rimborsare: un budget, non una campagna
+
+Il modo più affidabile di ripagare è una quota fissa di ogni iterazione, piccola e concordata con il cliente, che non si tocca quando arriva un'urgenza. Il rimborso segue la strada delle funzionalità: si ripaga il debito nel codice che sta per cambiare, perché è lì che gli interessi sono più alti, non il codice più brutto del repository. Un modulo brutto che nessuno tocca da due anni non chiede interessi.
+
+L'alternativa, lo «sprint di refactoring», ha due difetti. Viene cancellato alla prima urgenza, perché non consegna nulla di visibile. E quando sopravvive ripaga debito scelto per fastidio estetico, non per interessi. Con un budget il rimborso è continuo e ha un motivo ogni volta.
+
+Per una categoria di debito, le dipendenze tra moduli, il rimborso si può anche presidiare con uno strumento: la baseline del [capitolo precedente](from-big-ball-of-mud.md) congela le violazioni esistenti e impedisce che il registro cresca da quel lato.
+
+## Quando non ripagare
+
+Il codice che verrà buttato via non si ripaga: il capitolo precedente cita la *Sacrificial Architecture* di Fowler per lo stesso motivo. Il codice che non cambia mai ha interessi zero e può restare com'è, purché resti nel registro, perché gli interessi possono iniziare domani con la funzionalità che lo attraversa. Un prototipo dichiarato tale è debito preso apposta, con condizione «prima di andare in produzione», non un'eccezione.
+
+Infine, quando il rimborso costa più degli interessi che restano da pagare, per esempio in un prodotto vicino alla dismissione, la scelta economica è convivere. Anche questa è una decisione da scrivere, con la data in cui rivederla.
+
+## I compromessi e la decisione
+
+Il registro costa disciplina: una voce scritta male o mai riletta è rumore, e un registro che cresce senza chiudersi diventa un secondo backlog che nessuno guarda. Il budget riduce visibilmente le funzionalità consegnate per iterazione e va difeso davanti al cliente con le misure degli interessi, non con argomenti di pulizia. In cambio il team sa quanto debito ha, chi lo paga e quando smetterà di pagarlo, e le crisi del capitolo precedente non arrivano di sorpresa.
+
+Per l'applicazione Todo la prima versione esce con la regola nel controller, registrata con la condizione «prima di un secondo ingresso». Ogni iterazione riserva una quota fissa al rimborso, spesa nel codice che le funzionalità in arrivo stanno per toccare. Misuriamo il tempo di una modifica tipica nel percorso di creazione e riapertura. Quando arriva l'importazione, il rimborso viene prima.
+
+Rivedremo la decisione se il registro cresce per due iterazioni senza chiusure, se il tempo di modifica nelle zone calde raddoppia o se gli incendi superano il budget. In quel caso il problema non è più il debito, ma il ritmo con cui lo contraiamo.
+
+**Il debito tecnico è uno strumento finché qualcuno sa quanto ne ha e quando lo ripagherà.** Diventa un pericolo nel momento in cui smette di essere scritto: da lì in poi non decide più il team, decidono gli interessi.
+
+---
+
+[Capitolo precedente: Dalla palla di fango ai confini espliciti](from-big-ball-of-mud.md)
+
+[Torna all'indice dei capitoli](../README.md#capitoli)
