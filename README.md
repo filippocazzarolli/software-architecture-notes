@@ -18,29 +18,37 @@ Gli esempi rimangono piccoli e usano TypeScript, con NestJS e PostgreSQL solo do
 
 ## Capitoli
 
-I primi due capitoli sono disponibili, con diagrammi ed esempi pratici; gli altri capitoli sono in programma.
+Tutti e dieci i capitoli sono disponibili, con diagrammi ed esempi pratici.
 
 | # | Capitolo | Domanda centrale | Stato |
 | --- | --- | --- | --- |
 | 1 | [Prima dell'architettura: capire il problema di business](articles/business-before-architecture.md) | Abbiamo compreso il problema e le regole prima di scegliere la tecnologia? | Completato |
 | 2 | [Quando basta un monolite modulare](articles/modular-monolith.md) | Ci servono servizi indipendenti o confini più chiari tra moduli? | Completato |
-| 3 | Quando CQRS è eccessivo | Il modello di lettura e scrittura giustifica la complessità aggiuntiva? | In programma |
-| 4 | Gli eventi di dominio non sono eventi di integrazione | Un concetto interno al dominio dovrebbe diventare un contratto pubblico? | In programma |
-| 5 | Perché salvare dati e pubblicare un evento è difficile | Come colleghiamo una transazione del database a un sistema di messaggistica affidabile? | In programma |
-| 6 | I bounded context sono più di semplici cartelle | Il confine del modello è visibile e verificabile nel codice? | In programma |
-| 7 | Il dominio non dovrebbe conoscere HTTP | Il dominio avrebbe ancora senso senza HTTP? | In programma |
-| 8 | Testare l'architettura, oltre alla logica di business | Come impediamo che i confini architetturali si erodano? | In programma |
-| 9 | Dove dovrebbe finire una transazione? | Quali operazioni richiedono consistenza immediata? | In programma |
-| 10 | I microservizi sono anche una decisione operativa | Quali benefici giustificano il costo operativo di un sistema distribuito? | In programma |
+| 3 | [Quando CQRS è eccessivo](articles/cqrs-overkill.md) | Il modello di lettura e scrittura giustifica la complessità aggiuntiva? | Completato |
+| 4 | [Gli eventi di dominio non sono eventi di integrazione](articles/domain-vs-integration-events.md) | Un concetto interno al dominio dovrebbe diventare un contratto pubblico? | Completato |
+| 5 | [Perché salvare dati e pubblicare un evento è difficile](articles/outbox-pattern.md) | Come colleghiamo una transazione del database a un sistema di messaggistica affidabile? | Completato |
+| 6 | [I bounded context sono più di semplici cartelle](articles/bounded-contexts.md) | Il confine del modello è visibile e verificabile nel codice? | Completato |
+| 7 | [Il dominio non dovrebbe conoscere HTTP](articles/domain-http-error-mapping.md) | Il dominio avrebbe ancora senso senza HTTP? | Completato |
+| 8 | [Testare l'architettura, oltre alla logica di business](articles/architecture-boundary-tests.md) | Come impediamo che i confini architetturali si erodano? | Completato |
+| 9 | [Dove dovrebbe finire una transazione?](articles/transactions-eventual-consistency.md) | Quali operazioni richiedono consistenza immediata? | Completato |
+| 10 | [I microservizi sono anche una decisione operativa](articles/distributed-systems-cost.md) | Quali benefici giustificano il costo operativo di un sistema distribuito? | Completato |
 
 ## Struttura del repository
 
 ```text
 articles/
-├── business-before-architecture.md    Primo capitolo
-└── modular-monolith.md               Secondo capitolo
-examples/                             Riservata a piccoli esempi autonomi
-diagrams/                             Illustrazioni SVG richiamate negli articoli
+├── business-before-architecture.md       Primo capitolo
+├── modular-monolith.md                   Secondo capitolo
+├── cqrs-overkill.md                      Terzo capitolo
+├── domain-vs-integration-events.md       Quarto capitolo
+├── outbox-pattern.md                     Quinto capitolo
+├── bounded-contexts.md                   Sesto capitolo
+├── domain-http-error-mapping.md          Settimo capitolo
+├── architecture-boundary-tests.md        Ottavo capitolo
+├── transactions-eventual-consistency.md  Nono capitolo
+└── distributed-systems-cost.md           Decimo capitolo
+examples/                                 Riservata a piccoli esempi autonomi
+diagrams/                                 Illustrazioni SVG richiamate negli articoli
 ```
 
-I capitoli vengono sviluppati progressivamente. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione architetturale.
+I dieci capitoli seguono un percorso dal problema di business ai costi operativi delle scelte architetturali. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione.

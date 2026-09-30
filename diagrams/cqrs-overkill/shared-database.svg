@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="600" viewBox="0 0 1040 600" role="img" aria-labelledby="title desc">
+  <title id="title">Modelli distinti, stessi dati</title>
+  <desc id="desc">Nel modulo Todo i comandi usano regole e transazioni, mentre le query restituiscono DTO. Entrambi accedono alle stesse tabelle PostgreSQL, senza proiezioni asincrone.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#14766d" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="600" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">01 / LETTURE E SCRITTURE</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Modelli distinti, stessi dati</text>
+    <rect x="28" y="118" width="984" height="410" rx="16" fill="#fff" stroke="#d8e0e9"/>
+    <text x="52" y="152" font-size="18" font-weight="700">Modulo Todo · un solo processo</text>
+    <rect x="72" y="178" width="380" height="66" rx="10" fill="#eaf0fa" stroke="#a9bddc"/>
+    <text x="262" y="207" text-anchor="middle" font-size="21" font-weight="700">Comandi</text>
+    <text x="262" y="231" text-anchor="middle" font-size="16" fill="#52647a">Creare · completare · riaprire</text>
+    <rect x="588" y="178" width="380" height="66" rx="10" fill="#e8f5f1" stroke="#91c9bd"/>
+    <text x="778" y="207" text-anchor="middle" font-size="21" font-weight="700">Query</text>
+    <text x="778" y="231" text-anchor="middle" font-size="16" fill="#52647a">Mostrare i todo attivi</text>
+    <g fill="none" stroke="#14766d" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M262 244 V281"/>
+      <path d="M778 244 V281"/>
+    </g>
+    <rect x="72" y="290" width="380" height="86" rx="10" fill="#eaf0fa" stroke="#a9bddc"/>
+    <text x="262" y="325" text-anchor="middle" font-size="21" font-weight="700">Regole e transazioni</text>
+    <text x="262" y="354" text-anchor="middle" font-size="17" fill="#355b91">Proteggono il limite di tre todo</text>
+    <rect x="588" y="290" width="380" height="86" rx="10" fill="#e8f5f1" stroke="#91c9bd"/>
+    <text x="778" y="325" text-anchor="middle" font-size="21" font-weight="700">Query SQL e DTO</text>
+    <text x="778" y="354" text-anchor="middle" font-size="17" fill="#14766d">Dati pronti per la schermata</text>
+    <g fill="none" stroke="#14766d" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M262 376 V443"/>
+      <path d="M778 376 V443"/>
+    </g>
+    <text x="280" y="414" font-size="15" fill="#52647a">Legge e modifica</text>
+    <text x="796" y="414" font-size="15" fill="#52647a">Legge</text>
+    <rect x="72" y="452" width="896" height="52" rx="10" fill="#f6f8fb" stroke="#d8e0e9"/>
+    <text x="520" y="485" text-anchor="middle" font-size="21" font-weight="700">PostgreSQL · stesse tabelle di Todo</text>
+    <text x="520" y="568" text-anchor="middle" font-size="18" fill="#52647a">Nessuna copia da sincronizzare tra il percorso di scrittura e quello di lettura.</text>
+  </g>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="610" viewBox="0 0 1040 610" role="img" aria-labelledby="title desc">
+  <title id="title">Dal fatto interno al contratto pubblico</title>
+  <desc id="desc">Todo produce un evento di dominio, il livello applicativo lo traduce in todo.completed.v1 e ne prepara la consegna durevole. Report riceve il contratto pubblico dopo il commit, senza dipendere dal modello interno.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#14766d" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="610" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">01 / EVENTI E CONTRATTI</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Dal fatto interno al contratto pubblico</text>
+    <rect x="28" y="118" width="620" height="408" rx="16" fill="#fff" stroke="#d8e0e9"/>
+    <rect x="716" y="118" width="296" height="408" rx="16" fill="#fff" stroke="#d8e0e9"/>
+    <text x="52" y="154" font-size="22" font-weight="700">Todo · produttore</text>
+    <text x="740" y="154" font-size="22" font-weight="700">Report · consumatore</text>
+    <rect x="60" y="180" width="556" height="76" rx="10" fill="#eaf0fa" stroke="#a9bddc"/>
+    <text x="338" y="212" text-anchor="middle" font-size="21" font-weight="700">TodoCompleted</text>
+    <text x="338" y="239" text-anchor="middle" font-size="17" fill="#355b91">Fatto espresso dal modello di dominio</text>
+    <rect x="60" y="290" width="556" height="76" rx="10" fill="#f6f8fb" stroke="#d8e0e9"/>
+    <text x="338" y="322" text-anchor="middle" font-size="21" font-weight="700">Traduzione applicativa</text>
+    <text x="338" y="349" text-anchor="middle" font-size="17" fill="#52647a">Selezione dei dati e formato pubblico</text>
+    <rect x="60" y="400" width="556" height="100" rx="10" fill="#e8f5f1" stroke="#91c9bd"/>
+    <text x="338" y="431" text-anchor="middle" font-size="21" font-weight="700">todo.completed.v1</text>
+    <text x="338" y="458" text-anchor="middle" font-size="17" fill="#14766d">Contratto di integrazione</text>
+    <text x="338" y="483" text-anchor="middle" font-size="15" fill="#52647a">Registrazione durevole insieme alla modifica</text>
+    <rect x="740" y="400" width="248" height="100" rx="10" fill="#e8f5f1" stroke="#91c9bd"/>
+    <text x="864" y="440" text-anchor="middle" font-size="21" font-weight="700">Conteggio giornaliero</text>
+    <text x="864" y="472" text-anchor="middle" font-size="16" fill="#14766d">Usa il contratto pubblico</text>
+    <text x="740" y="210" font-size="17" fill="#52647a">Modello e persistenza</text>
+    <text x="740" y="236" font-size="17" fill="#52647a">gestiti separatamente</text>
+    <g fill="none" stroke="#14766d" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M338 256 V281"/>
+      <path d="M338 366 V391"/>
+      <path d="M616 450 H731"/>
+    </g>
+    <text x="678" y="414" text-anchor="middle" font-size="15" fill="#52647a">Dopo</text>
+    <text x="678" y="435" text-anchor="middle" font-size="15" fill="#52647a">il commit</text>
+    <text x="520" y="566" text-anchor="middle" font-size="19" font-weight="700">Il modello evolve internamente. Il contratto evolve con i consumatori.</text>
+    <text x="520" y="592" text-anchor="middle" font-size="16" fill="#52647a">La traduzione definisce il messaggio; la consegna affidabile richiede un meccanismo dedicato.</text>
+  </g>
+</svg>

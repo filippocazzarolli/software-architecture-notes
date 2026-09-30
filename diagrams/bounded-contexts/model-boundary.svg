@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="520" viewBox="0 0 1040 520" role="img" aria-labelledby="title desc"><title id="title">La stessa identità, modelli distinti</title><desc id="desc">Account pubblica una piccola API. Todo adatta il contratto alle proprie esigenze senza importare entità o repository esterni.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#14766d" stroke-width="1.5"/></marker></defs><rect width="1040" height="520" rx="20" fill="#f6f8fb"/><g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+<text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">06 / CONFINI DEL MODELLO</text><text x="36" y="88" font-size="29" font-weight="700">La stessa identità, modelli distinti</text>
+<rect x="36" y="145" width="300" height="270" rx="14" fill="#eaf0fa" stroke="#a9bddc"/><text x="56" y="186" font-size="21" font-weight="700">Account</text>
+<text x="56" y="233" font-size="17" fill="#52647a">Identità e profilo</text>
+<text x="56" y="264" font-size="17" fill="#52647a">Modello User interno</text>
+<text x="56" y="295" font-size="17" fill="#52647a">Tabelle e migrazioni proprie</text>
+<text x="56" y="326" font-size="17" fill="#52647a">API pubblica: exists</text>
+<path d="M361 282 H339" fill="none" stroke="#14766d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="370" y="145" width="300" height="270" rx="14" fill="#e8f5f1" stroke="#91c9bd"/><text x="390" y="186" font-size="21" font-weight="700">Adattatore di Todo</text>
+<text x="390" y="233" font-size="17" fill="#52647a">Conosce AccountApi</text>
+<text x="390" y="264" font-size="17" fill="#52647a">Implementa OwnerDirectory</text>
+<text x="390" y="295" font-size="17" fill="#52647a">Traduce quando necessario</text>
+<text x="390" y="326" font-size="17" fill="#52647a">Dipendenza esplicita</text>
+<path d="M695 282 H673" fill="none" stroke="#14766d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="704" y="145" width="300" height="270" rx="14" fill="#fff4e6" stroke="#dcbf92"/><text x="724" y="186" font-size="21" font-weight="700">Todo</text>
+<text x="724" y="233" font-size="17" fill="#52647a">Proprietario delle attività</text>
+<text x="724" y="264" font-size="17" fill="#52647a">Limite dei tre todo attivi</text>
+<text x="724" y="295" font-size="17" fill="#52647a">Usa OwnerDirectory</text>
+<text x="724" y="326" font-size="17" fill="#52647a">Possiede i dati dei todo</text>
+<text x="520" y="462" text-anchor="middle" font-size="18" fill="#52647a">Il contratto collega i contesti; non ne unifica i modelli.</text>
+<text x="520" y="490" text-anchor="middle" font-size="16" fill="#52647a">Le frecce seguono le chiamate: Todo → adattatore → Account.</text>
+</g></svg>
