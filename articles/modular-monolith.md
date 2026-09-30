@@ -32,7 +32,9 @@ Questo confine consente, per esempio, di riorganizzare la persistenza degli acco
 
 ### Le cartelle non bastano
 
-Spostare i file in `account/` e `todo/` aiuta a orientarsi, ma non impedisce a Todo di importare `account/internal/repository`. Il confine deve essere verificabile: un punto d'ingresso pubblico per modulo, regole sugli import eseguite in CI e controlli che impediscano dipendenze circolari.
+Spostare i file in `account/` e `todo/` aiuta a orientarsi, ma non impedisce a Todo di importare `account/internal/repository`. Il confine deve essere verificabile: un punto d'ingresso pubblico per modulo, regole sugli import eseguite in CI e controlli che impediscano dipendenze circolari ([Testare l'architettura, oltre alla logica di business](architecture-boundary-tests.md) mostra come scriverli).
+
+Vale anche con NestJS: `exports` in `@Module` limita ciò che si può iniettare, non ciò che un file può importare. È una barriera di dependency injection, non di dipendenze nel codice.
 
 La stessa attenzione serve per i dati. Schemi PostgreSQL separati possono rendere visibile la proprietà, ma non bloccano gli accessi se l'applicazione usa credenziali con permessi su tutto. Le regole del codice e la revisione delle query restano necessarie; quando occorre una barriera più forte, si possono valutare ruoli e permessi dedicati.
 
@@ -62,29 +64,40 @@ Il caso d'uso di creazione riceve un'implementazione di `AccountApi`, verifica l
 
 *Figura 2 — Le frecce indicano chiamate o accessi ai dati. Il limite sui todo rimane nel modulo che possiede il loro ciclo di vita.*
 
-Il controllo di esistenza è una lettura puntuale: non garantisce che l'account non venga cancellato subito dopo. Se il prodotto prevede la cancellazione degli utenti, bisogna definirne il coordinamento con Todo. Un eventuale vincolo referenziale tra moduli è una scelta esplicita di accoppiamento nello schema, da valutare insieme alle esigenze di integrità.
+Il controllo di esistenza è una lettura puntuale: non garantisce che l'account non venga cancellato subito dopo. Se il prodotto prevede la cancellazione degli utenti, bisogna definirne il coordinamento con Todo, tema del capitolo [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md). Un eventuale vincolo referenziale tra moduli è una scelta esplicita di accoppiamento nello schema, da valutare insieme alle esigenze di integrità.
+
+### E le letture che attraversano i moduli?
+
+Il divieto di leggere le tabelle altrui ha un costo: una schermata che mostra i todo con il nome del proprietario non può più fare un `JOIN` tra `todo.items` e `account.users`. Le strade sono tre:
+
+- **Chiamata batch.** Todo chiede ad Account i nomi di un elenco di identificativi, per esempio con `findNames(userIds)`, e li compone nella risposta. Costa una chiamata in più e un contratto da mantenere.
+- **Copia locale.** Todo conserva i soli campi che servono. Evita la chiamata, ma la copia può restare indietro e va aggiornata: è il problema degli eventi di integrazione.
+- **Lettura condivisa dichiarata.** Una vista in sola lettura esposta da Account, presentata come accoppiamento voluto. È la più semplice, ma vincola lo schema di Account.
+
+Partirei dalla chiamata batch: mantiene una sola fonte di verità e nessun dato duplicato da riallineare. Le altre due si giustificano quando la latenza o la complessità della lettura, misurate, lo richiedono.
 
 ### Dove vive la regola dei tre todo attivi
 
 La regola appartiene a Todo e deve valere per ogni operazione che aumenta il numero di attività attive, comprese riaperture e importazioni. Metterla soltanto nel controller HTTP lascia scoperti gli altri punti d'ingresso.
 
-Nemmeno una transazione che esegue un semplice conteggio seguito da un inserimento è sufficiente, con il consueto livello di isolamento `READ COMMITTED`: due richieste possono contare entrambe due todo attivi e inserirne uno ciascuna, arrivando a quattro. Ogni comando vede uno snapshot dei dati già confermati. Si veda la [documentazione PostgreSQL sull'isolamento delle transazioni](https://www.postgresql.org/docs/18/transaction-iso.html#XACT-READ-COMMITTED).
+Nemmeno una transazione che esegue un semplice conteggio seguito da un inserimento è sufficiente, con il livello di isolamento predefinito di PostgreSQL, `READ COMMITTED`: due richieste possono contare entrambe due todo attivi e inserirne uno ciascuna, arrivando a quattro. Ogni comando vede uno snapshot dei dati già confermati. Si veda la [documentazione PostgreSQL sull'isolamento delle transazioni](https://www.postgresql.org/docs/18/transaction-iso.html#XACT-READ-COMMITTED).
 
-Una possibile implementazione mantiene in `todo.user_state` una riga stabile per utente, inizializzata in modo sicuro prima dell'uso e con `user_id` univoco. Nella stessa transazione `READ COMMITTED`, il modulo:
+Una possibile implementazione mantiene in `todo.user_state` una riga stabile per utente, con `user_id` univoco. Nella stessa transazione `READ COMMITTED`, il modulo:
 
-1. Blocca quella riga con `SELECT … FOR UPDATE`.
-2. Esegue un comando successivo per contare i todo attivi.
-3. Rifiuta l'operazione se il limite è raggiunto; altrimenti inserisce o riapre il todo e conferma la transazione.
+1. Si assicura che la riga esista con `INSERT … ON CONFLICT (user_id) DO NOTHING`. Un `SELECT` seguito da un `INSERT` solo se la riga manca farebbe fallire una delle richieste concorrenti con una violazione di unicità.
+2. Blocca la riga con `SELECT … FOR UPDATE`.
+3. Esegue un comando successivo per contare i todo attivi.
+4. Rifiuta l'operazione se il limite è raggiunto; altrimenti inserisce o riapre il todo e conferma la transazione.
 
-Il lock dura fino alla fine della transazione e fa attendere le altre operazioni che acquisiscono lo stesso lock. Tutti i percorsi che possono aumentare il conteggio devono rispettare questo protocollo, anche quando l'applicazione gira su più repliche. Bloccare solo i todo esistenti non offre lo stesso punto di coordinamento, soprattutto quando non ce ne sono. Il comportamento dei lock è descritto nella [documentazione PostgreSQL sui lock di riga](https://www.postgresql.org/docs/18/explicit-locking.html#LOCKING-ROWS).
+Il lock dura fino alla fine della transazione e fa attendere le altre operazioni che acquisiscono lo stesso lock. Tutti i percorsi che possono aumentare il conteggio devono rispettare questo protocollo, anche quando l'applicazione gira su più repliche. Bloccare soltanto i todo attivi esistenti protegge finché ne esiste almeno uno; con zero attivi non c'è nulla da bloccare e più richieste concorrenti possono superare il limite: nella prova, quattro richieste partite da zero attivi ne hanno creati quattro. Non è quindi un punto di coordinamento stabile. Il comportamento dei lock è descritto nella [documentazione PostgreSQL sui lock di riga](https://www.postgresql.org/docs/18/explicit-locking.html#LOCKING-ROWS).
 
-La riga di coordinamento appartiene a Todo: non serve usare la tabella degli account per proteggere una regola di un altro modulo. Il prezzo è serializzare queste operazioni per lo stesso utente. Per verificarne il comportamento, un test d'integrazione significativo parte da due todo attivi e tenta due creazioni concorrenti: una sola deve riuscire.
+La riga di coordinamento appartiene a Todo: non serve usare la tabella degli account per proteggere una regola di un altro modulo. Il prezzo è serializzare queste operazioni per lo stesso utente. Per verificarne il comportamento, un test d'integrazione significativo parte da due todo attivi e tenta due creazioni concorrenti: una sola deve riuscire. Ho misurato questi casi su PostgreSQL 18.0 nel capitolo [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md).
 
 ## Quando il monolite modulare aiuta
 
 Questa soluzione è adatta quando le funzionalità hanno responsabilità distinguibili, ma il team trae ancora vantaggio da un rilascio comune. Consente di lavorare su una parte del sistema attraverso contratti stabili, mantenendo semplici avvio locale, comunicazione e gestione operativa.
 
-Può ospitare più *bounded context*: ambiti nei quali termini e modelli hanno un significato coerente. Un confine di modello, però, non impone un confine di deployment. Inoltre, non ogni modulo è automaticamente un bounded context: alcuni moduli servono soltanto a organizzare il codice all'interno dello stesso modello.
+Può ospitare più *bounded context*, perché un confine di modello non impone un confine di deployment. Non ogni modulo, però, è un bounded context: alcuni servono soltanto a organizzare il codice all'interno dello stesso modello. Il capitolo [I bounded context sono più di semplici cartelle](bounded-contexts.md) approfondisce la distinzione.
 
 Il criterio pratico è la capacità di cambiare un'implementazione senza costringere gli altri moduli a conoscerne i dettagli. Se ogni modifica richiede di aggiornare molti contratti, occorre rivedere i confini o le responsabilità.
 
@@ -92,7 +105,7 @@ Il criterio pratico è la capacità di cambiare un'implementazione senza costrin
 
 Una piccola applicazione CRUD può funzionare bene con pochi componenti chiari. Creare un modulo per ogni tabella, introdurre interfacce senza un confine da proteggere o aggiungere livelli che si limitano a inoltrare chiamate aumenta il costo di lettura e modifica.
 
-Anche broker, bus di eventi generici e database separati richiedono una motivazione propria. Una chiamata diretta tra moduli è spesso sufficiente. Se si introduce comunicazione asincrona, bisogna accettare e gestire ritardi, errori e consistenza dei dati: la modularità, da sola, non la richiede.
+Anche broker, bus di eventi generici e database separati richiedono una motivazione propria. Una chiamata diretta tra moduli è spesso sufficiente. Se si introduce comunicazione asincrona, bisogna accettare e gestire ritardi, errori e consistenza dei dati: la modularità, da sola, non la richiede. I capitoli sugli [eventi di dominio e di integrazione](domain-vs-integration-events.md) e sul [pattern outbox](outbox-pattern.md) ne mostrano contratti e insidie.
 
 Conviene iniziare dai punti in cui le modifiche si propagano davvero e rendere quei confini più solidi. Non serve anticipare l'infrastruttura di un sistema distribuito per prepararsi a un'estrazione che potrebbe non avvenire.
 
@@ -103,6 +116,7 @@ Conviene iniziare dai punti in cui le modifiche si propagano davvero e rendere q
 | Rilascio | Un solo artefatto da distribuire | I moduli vengono rilasciati insieme |
 | Comunicazione | Chiamate nello stesso processo | I contratti vanno mantenuti e le dipendenze controllate |
 | Dati | Un database da gestire, con proprietà esplicita | Gli accessi diretti tra moduli possono erodere i confini |
+| Letture trasversali | Nessuna rete di mezzo | Niente `JOIN` tra tabelle di moduli diversi: servono chiamate batch, copie o viste dichiarate |
 | Scalabilità | Possibilità di replicare l'applicazione | Si scala l'intera applicazione, non un singolo modulo |
 | Affidabilità | Meno componenti operativi | Un guasto al processo o l'esaurimento delle risorse può coinvolgere tutti i moduli |
 
@@ -119,7 +133,7 @@ Rivedremo la decisione in presenza di esigenze concrete:
 - Un requisito di disponibilità richiede che il guasto di una funzionalità non coinvolga le altre.
 - La responsabilità di una capacità passa a un team che necessita anche di autonomia operativa.
 
-Questi segnali giustificano una valutazione, non rendono automatica l'estrazione. Separare un servizio introduce chiamate di rete che possono fallire, contratti da far evolvere tra versioni diverse, coordinamento dei dati e nuovi componenti da monitorare. Confini già chiari aiutano, ma l'estrazione richiede comunque lavoro.
+Questi segnali giustificano una valutazione, non rendono automatica l'estrazione. Separare un servizio introduce chiamate di rete che possono fallire, contratti da far evolvere tra versioni diverse, coordinamento dei dati e nuovi componenti da monitorare. Confini già chiari aiutano, ma l'estrazione richiede comunque lavoro: [I microservizi sono anche una decisione operativa](distributed-systems-cost.md) ne elenca i costi.
 
 **Confini solidi non richiedono servizi separati.** Un monolite modulare può essere una soluzione duratura: scegliamo il deployment in base ai vincoli reali dell'applicazione e cambiamolo quando il beneficio atteso giustifica il costo.
 

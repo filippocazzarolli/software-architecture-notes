@@ -16,15 +16,17 @@ Come descrive [Martin Fowler parlando di bounded context](https://martinfowler.c
 
 ## Dominio, sottodominio e confine del modello
 
-Il **dominio** è l'ambito del problema che stiamo affrontando. Un **sottodominio** ne individua una parte, per esempio la gestione delle attività personali. Un **bounded context** delimita dove un certo modello e il relativo linguaggio sono validi. I primi descrivono il problema; il secondo è una scelta su come modellarlo nel software.
+Il **dominio** è l'ambito del problema che stiamo affrontando. Un **sottodominio** ne individua una parte, per esempio la gestione delle attività personali. Un **bounded context** delimita dove un certo modello e il relativo *linguaggio ubiquo* (i termini che team ed esperti di dominio usano con lo stesso significato) sono validi. I primi descrivono il problema; il secondo è una scelta su come modellarlo nel software.
 
 Non ricaviamo questi confini contando tabelle o servizi. Il modulo `notifications/` potrebbe essere soltanto un adattatore tecnico. Una dashboard potrebbe essere una query di Todo, senza un modello autonomo. Report diventa un contesto distinto nel nostro scenario quando possiede definizioni, regole di aggregazione e un'evoluzione propria, non semplicemente perché riceve messaggi.
+
+La classificazione dei sottodomini orienta anche dove investire. Un sottodominio può essere *core*, cioè ciò che distingue il prodotto, *di supporto* oppure *generico*. In questo scenario ipotetico il limite dei tre todo è il core e merita un modello curato; Report è di supporto e può restare semplice; identità e profilo in Account sono quasi generici e, se crescessero, potrebbero appoggiarsi a soluzioni esistenti. Sono ipotesi da rivedere con il cliente: orientano la cura del modello, non decidono da sole i confini.
 
 Anche Account e Todo sono una proposta da verificare con il lavoro reale. Se ogni requisito impone di cambiarli insieme e non emergono significati differenti, separarli rigidamente può costare più di quanto aiuti.
 
 ## La soluzione più semplice: rendere esplicite le responsabilità
 
-Partirei da una conversazione su tre domande: chi decide una regola, quali informazioni gli servono e chi può modificare quei dati. La struttura delle directory viene dopo.
+Partirei da una conversazione su tre domande: chi decide una regola, quali informazioni gli servono e chi può modificare quei dati. La struttura delle directory viene dopo. La tabella seguente ne è il risultato, in forma di *context map* minima: i contesti e ciò che si scambiano.
 
 | Contesto | Decisioni proprie | Informazioni ricevute |
 | --- | --- | --- |
@@ -83,21 +85,21 @@ Bloccare gli import non basta se Todo esegue query arbitrarie su `account.users`
 
 Assegniamo quindi un proprietario a tabelle e migrazioni. Schemi distinti aiutano a riconoscerlo, ma la barriera effettiva dipende anche da query, repository e permessi. Nel monolite possiamo iniziare con regole e revisione del codice; per esigenze più forti valutiamo credenziali separate, considerando il costo di gestirle.
 
-Una join trasversale per un report può essere un compromesso esplicito, per esempio su una vista pubblica mantenuta dal proprietario. Documentiamo quali cambiamenti richiedono coordinamento. Un accesso in sola lettura rimane una dipendenza dallo schema e può creare carico sul database altrui.
+Una join trasversale per un report può essere un compromesso esplicito, per esempio su una vista pubblica mantenuta dal proprietario, come nelle opzioni di [E le letture che attraversano i moduli?](modular-monolith.md#e-le-letture-che-attraversano-i-moduli). Documentiamo quali cambiamenti richiedono coordinamento. Un accesso in sola lettura rimane una dipendenza dallo schema e può creare carico sul database altrui.
 
 Lo stesso vale per una foreign key tra contesti. Offre integrità locale, ma lega migrazioni e ciclo di vita dei dati. Evitarla senza un'alternativa non rende automaticamente il sistema migliore: occorre decidere come gestire riferimenti non più validi.
 
 ## Comunicare significa anche concordare il tempo
 
-`exists` risponde sullo stato osservato in quel momento. L'account può essere cancellato dopo il controllo. Se il prodotto richiede che nessun todo venga creato dopo l'avvio della cancellazione, serve un protocollo che renda effettivo quel vincolo; due cartelle e una chiamata non lo forniscono.
+`exists` risponde sullo stato osservato in quel momento. L'account può essere cancellato dopo il controllo. Se il prodotto richiede che nessun todo venga creato dopo l'avvio della cancellazione, serve un protocollo che renda effettivo quel vincolo; due cartelle e una chiamata non lo forniscono. Il coordinamento tra contesti è approfondito in [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md).
 
 Per Report accettiamo invece aggiornamenti successivi. Il [contratto di integrazione](domain-vs-integration-events.md) stabilisce cosa significa un completamento, mentre l'[outbox](outbox-pattern.md) conserva i messaggi da consegnare. La relazione comprende formato, responsabilità, ritardo accettabile e recupero degli errori.
 
-Un pacchetto condiviso può contenere questi contratti. Se comincia a esportare entità, repository e regole interne, ricrea un modello comune senza dichiararlo. Terrei piccola quella superficie e verificherei anche ciò che i suoi file riesportano.
+Un pacchetto condiviso può contenere questi contratti. Se comincia a esportare entità, repository e regole interne, ricrea senza dichiararlo un modello comune: uno *Shared Kernel* non concordato. Terrei piccola quella superficie e verificherei anche ciò che i suoi file riesportano.
 
 ## I compromessi e la decisione
 
-Confini espliciti permettono a ogni modello di evolvere secondo le proprie esigenze. Introducono però mapping, contratti, talvolta dati duplicati e discussioni sulla consistenza. Un modello condiviso intenzionalmente può essere meno costoso quando significato e ciclo di modifica coincidono.
+Confini espliciti permettono a ogni modello di evolvere secondo le proprie esigenze. Introducono però mapping, contratti, talvolta dati duplicati e discussioni sulla consistenza. Un modello condiviso intenzionalmente, uno *Shared Kernel* con responsabilità concordate, può essere meno costoso quando significato e ciclo di modifica coincidono.
 
 Per questa applicazione manteniamo Account e Todo nello stesso deployment, con responsabilità e dati distinti. Todo consulta l'API pubblica di Account; Report riceve fatti confermati. Non creiamo un contesto per ogni entità o una rete di adattatori per ogni chiamata.
 

@@ -25,7 +25,7 @@ export function assertCanActivate(activeCount: number): void {
 }
 ```
 
-La dipendenza non diventa innocua perché il test passa. Il modello ha bisogno di un framework di trasporto per esprimere una decisione propria.
+La dipendenza non diventa innocua perché il test passa. Il modello ha bisogno di un framework di trasporto per esprimere una decisione propria. Questo tipo di import si può bloccare automaticamente: il [capitolo sui test architetturali](architecture-boundary-tests.md) include una regola che rifiuta `@nestjs/common` nel dominio.
 
 ## La soluzione più semplice: un errore significativo
 
@@ -33,8 +33,10 @@ Possiamo partire da una classe TypeScript, senza una gerarchia generale di error
 
 ```ts
 // todo/domain/active-todo-limit.ts
+export const MAX_ACTIVE_TODOS = 3;
+
 export class TodoLimitExceeded extends Error {
-  readonly limit = 3;
+  readonly limit = MAX_ACTIVE_TODOS;
 
   constructor() {
     super("Active todo limit exceeded");
@@ -43,13 +45,15 @@ export class TodoLimitExceeded extends Error {
 }
 
 export function assertCanActivate(activeCount: number): void {
-  if (activeCount >= 3) throw new TodoLimitExceeded();
+  if (activeCount >= MAX_ACTIVE_TODOS) throw new TodoLimitExceeded();
 }
 ```
 
 Il numero proviene da un conteggio autorevole, letto dal caso d'uso nella transazione che protegge la modifica. La funzione valuta la regola; non rende sicuro un conteggio obsoleto. Il protocollo di concorrenza rimane quello del [capitolo sul monolite modulare](modular-monolith.md).
 
 Non esponiamo direttamente `error.message` al client. Il messaggio interno aiuta lo sviluppatore; il contratto pubblico richiede un codice stabile e un testo scelto per chi usa l'API. Una modifica alla formulazione interna non dovrebbe rompere il frontend.
+
+Il formato del corpo, `{ code, message, limit }`, è una convenzione nostra e l'esempio seguente la usa per brevità. L'[RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html) definisce *Problem Details* (`application/problem+json`) come alternativa standard, con campi come `type`, `title` e `status` e membri di estensione per dati come `limit`.
 
 ## Un esempio: tradurre al confine HTTP
 
@@ -88,7 +92,7 @@ Il codice intercetta solo il rifiuto atteso. Gli altri errori continuano nel per
 
 Qui scegliamo `409 Conflict`: la richiesta di attivare un todo entra in conflitto con lo stato corrente delle attività dell'utente. Il client può risolverlo completandone una. Questo utilizzo è coerente con la [semantica di 409 definita da HTTP](https://www.rfc-editor.org/rfc/rfc9110.html#name-409-conflict).
 
-Non è una proprietà intrinseca di `TodoLimitExceeded`. Un'altra API potrebbe adottare una convenzione documentata differente. La decisione appartiene al contratto HTTP e deve essere applicata coerentemente.
+Non è una proprietà intrinseca di `TodoLimitExceeded`. Un'altra API potrebbe adottare una convenzione documentata differente, per esempio [`422 Unprocessable Content`](https://www.rfc-editor.org/rfc/rfc9110.html#name-422-unprocessable-content) per le violazioni di regole di business. La decisione appartiene al contratto HTTP e deve essere applicata coerentemente.
 
 | Situazione | Responsabilità | Esempio di risposta HTTP |
 | --- | --- | --- |
@@ -128,7 +132,9 @@ Attenzione alla transazione: restituire `{ ok: false }` da una callback non impl
 
 Separare errore e trasporto aggiunge un mapping e verifiche specifiche per l'adattatore. In cambio possiamo cambiare framework, aggiungere una CLI e testare la regola senza avviare un server. Non serve un catalogo universale di errori per ottenere questo beneficio.
 
-Per Todo scegliamo una piccola eccezione di dominio e un filtro HTTP mirato. Un test della regola controlla il rifiuto con tre attività; un test HTTP controlla `409` e `TODO_LIMIT_EXCEEDED`; una prova con un errore inatteso verifica che non venga trasformato nel rifiuto di business. La concorrenza si verifica separatamente sul database.
+La separazione non è sempre giustificata. In un'applicazione CRUD con un solo ingresso HTTP e nessuna regola da riusare, lanciare le eccezioni HTTP di NestJS da un servizio applicativo è un compromesso accettabile: la dipendenza resta in un livello che conosce comunque il framework. Il costo emerge quando compare un secondo ingresso, quando la regola deve vivere in un modello da testare da solo o quando cambiare framework smette di essere un'ipotesi remota. Anche allora eviterei di importare NestJS nelle entità che esprimono la regola.
+
+Per Todo, dove la regola serve già a più ingressi, scegliamo una piccola eccezione di dominio e un filtro HTTP mirato. Un test della regola controlla il rifiuto con tre attività; un test HTTP controlla `409` e `TODO_LIMIT_EXCEEDED`; una prova con un errore inatteso verifica che non venga trasformato nel rifiuto di business. La concorrenza si verifica separatamente sul database.
 
 Manteniamo nel dominio il significato dell'errore e nei punti d'ingresso la risposta appropriata. Rivedremo lo stile di ritorno se il numero di esiti attesi renderà difficile capire il contratto dei casi d'uso.
 

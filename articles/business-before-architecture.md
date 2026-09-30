@@ -40,7 +40,7 @@ Per la prima versione concordiamo un ambito ristretto: l'applicazione registrer�
 
 ## Far emergere le regole di business
 
-Il cliente propone un limite per ridurre il lavoro lasciato a metà: **un utente non può avere più di tre todo attivi**.
+Il cliente propone un limite per ridurre il lavoro lasciato a metà: **un utente non può avere più di tre todo attivi**. È un limite al lavoro in corso, quello che il Kanban chiama *WIP limit*: la [Kanban Guide](https://kanbanguides.org/english/) include il controllo del WIP tra le sue pratiche.
 
 La frase sembra pronta da implementare. In realtà apre diverse domande. Perché proprio tre? Il limite è individuale o di gruppo? Un'attività bloccata conta ancora? Riaprire un'attività completata occupa un posto? Esistono eccezioni per le urgenze?
 
@@ -62,7 +62,7 @@ Non serve costruire subito un motore di regole per supportare ogni cambiamento i
 
 ## Rendere la comprensione verificabile
 
-Una conversazione utile deve lasciare qualcosa che cliente e sviluppatori possano rileggere e correggere insieme. Per questo caso bastano un piccolo glossario e pochi esempi.
+Una conversazione utile deve lasciare qualcosa che cliente e sviluppatori possano rileggere e correggere insieme. Per questo caso bastano un piccolo glossario e pochi esempi. Regole, esempi e domande aperte sono anche i tre elementi dell'[Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/), una tecnica di Matt Wynne per esplorare una richiesta prima di implementarla. Il glossario è il primo nucleo del *linguaggio ubiquo*, di cui parliamo nel capitolo sui [bounded context](bounded-contexts.md).
 
 Nel glossario, un **todo attivo** è un'attività creata o riaperta e non ancora completata. **Completare** libera un posto. **Riaprire** rende nuovamente attiva un'attività completata e richiede un posto disponibile.
 
@@ -76,7 +76,7 @@ Gli esempi rendono osservabili le conseguenze della regola:
 | Tre todo attivi e uno completato | Riaprire quello completato | Riapertura rifiutata |
 | Due todo attivi | Inviare due creazioni contemporanee | Una sola creazione riesce; i todo attivi diventano tre |
 
-L'ultimo esempio fa emergere un requisito che un semplice disegno della schermata potrebbe nascondere. Il cliente può confermare il comportamento desiderato senza conoscere transazioni o lock. Spetta al team tecnico scegliere come garantirlo.
+L'ultimo esempio fa emergere un requisito che un semplice disegno della schermata potrebbe nascondere. Il cliente può confermare il comportamento desiderato senza conoscere transazioni o lock. Spetta al team tecnico scegliere come garantirlo e come provarlo: [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md) misura alcune possibilità su PostgreSQL.
 
 Questi esempi possono diventare criteri di accettazione e test. La loro prima funzione, però, è verificare che stiamo descrivendo lo stesso prodotto. Se il cliente si aspetta che il quarto todo venga salvato in attesa, abbiamo scoperto una differenza di modello prima di scrivere la relativa persistenza.
 
@@ -84,7 +84,7 @@ Questi esempi possono diventare criteri di accettazione e test. La loro prima fu
 
 Ora abbiamo elementi per discutere di architettura. Il limite riguarda il ciclo di vita dei todo: la responsabilità di applicarlo deve stare nella parte del sistema che governa creazione e riapertura. Deve valere per l'interfaccia web, per eventuali importazioni e per qualsiasi altro ingresso.
 
-L'esempio delle richieste contemporanee richiede inoltre un meccanismo di coordinamento: un controllo nell'interfaccia utente non basta. La scelta concreta dipenderà dalla persistenza e dai vincoli del sistema; il prossimo capitolo mostrerà una possibile soluzione con PostgreSQL.
+L'esempio delle richieste contemporanee richiede inoltre un meccanismo di coordinamento: un controllo nell'interfaccia utente non basta. La scelta concreta dipenderà dalla persistenza e dai vincoli del sistema; il [prossimo capitolo](modular-monolith.md) mostrerà una possibile soluzione con PostgreSQL.
 
 ![Il percorso parte dal problema e dalle persone coinvolte, passa attraverso esempi e regole condivise e arriva a una decisione tecnica. Un percorso di ritorno riporta risultati e nuove domande al confronto con cliente e utenti.](../diagrams/business-before-architecture/decision-loop.svg)
 
@@ -92,7 +92,7 @@ L'esempio delle richieste contemporanee richiede inoltre un meccanismo di coordi
 
 La regola dei tre todo, da sola, non ci dice quanti servizi distribuire o quale framework usare. Per queste decisioni servono altre informazioni: volumi attesi, disponibilità necessaria, competenze del team, tempi di consegna e frequenza dei rilasci. Anche qui chiediamo conseguenze concrete: cosa comporterebbe un'ora di indisponibilità? Quali operazioni devono rispondere rapidamente, e per chi?
 
-Supponiamo che un solo team gestisca l'applicazione, che il carico iniziale sia contenuto e che non servano rilasci indipendenti. Un'applicazione unica con responsabilità chiare è allora un punto di partenza ragionevole. Possiamo spiegare la scelta collegandola ai vincoli emersi, e indicare quali cambiamenti ci porterebbero a riconsiderarla.
+Supponiamo che un solo team gestisca l'applicazione, che il carico iniziale sia contenuto e che non servano rilasci indipendenti. Un'applicazione unica con responsabilità chiare è allora un punto di partenza ragionevole. Possiamo spiegare la scelta collegandola ai vincoli emersi, e indicare quali cambiamenti ci porterebbero a riconsiderarla: il capitolo sul monolite modulare ne elenca alcuni tra i [segnali per rivedere la decisione](modular-monolith.md#la-decisione-e-i-segnali-per-rivederla).
 
 ## Quanto capire prima di iniziare
 
@@ -115,9 +115,11 @@ Al termine di questo primo confronto, possiamo registrare una decisione iniziale
 - **Regole confermate:** massimo tre todo attivi per utente; completare libera un posto; creare e riaprire richiedono un posto disponibile, anche con richieste concorrenti.
 - **Ipotesi da verificare:** il limite aiuta gli utenti a completare il lavoro; il flusso scelto copre le situazioni quotidiane più frequenti.
 - **Vincoli iniziali:** un team, carico contenuto e rilascio comune.
+- **Alternative considerate:** servizi separati fin dall'inizio; un'applicazione unica senza confini interni.
+- **Compromessi accettati:** un solo deployment, quindi si scala l'intera applicazione e i rilasci sono comuni; in cambio, meno componenti da gestire.
 - **Scelta tecnica:** partire da una sola applicazione con responsabilità esplicite e verificare una piccola parte funzionante con cliente e utenti.
 
-Il valore di questo lavoro è poter collegare una scelta tecnica a un'esigenza e riconoscere quando le sue premesse cambiano. L'architettura diventa una decisione spiegabile, aperta alla verifica.
+Il valore di questo lavoro è poter collegare una scelta tecnica a un'esigenza e riconoscere quando le sue premesse cambiano. L'architettura diventa una decisione spiegabile, aperta alla verifica. Un elenco di questo tipo è, in forma leggera, un *Architecture Decision Record*: [Michael Nygard](https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions) lo descrive con stato, contesto, decisione e conseguenze, e conviene tenerlo nel repository, accanto al codice che motiva.
 
 Da qui nasce la domanda del prossimo capitolo: per proteggere queste responsabilità servono servizi indipendenti oppure basta un monolite con confini più chiari?
 

@@ -18,9 +18,9 @@ Nello scenario iniziale il carico è contenuto. Non abbiamo misurato problemi di
 
 Un'applicazione CRUD può già avere casi d'uso espliciti, validazioni e transazioni. Non richiede di esporre aggiornamenti arbitrari alle tabelle. Possiamo mantenere `create`, `complete` e `reopen`, aggiungendo una query che selezioni soltanto i campi necessari alla schermata.
 
-Separare funzioni che modificano lo stato da funzioni che lo leggono rende più chiaro il codice. Creare due cartelle o due handler, però, non dimostra che servano modelli distinti. Se entrambi continuano a usare la stessa rappresentazione per le stesse esigenze, il beneficio può limitarsi all'organizzazione.
+Separare funzioni che modificano lo stato da funzioni che lo leggono rende più chiaro il codice: è il principio CQS (Command-Query Separation) di Bertrand Meyer, che vale a livello di metodo e non richiede modelli diversi. Creare due cartelle o due handler, però, non dimostra che servano modelli distinti. Se entrambi continuano a usare la stessa rappresentazione per le stesse esigenze, il beneficio può limitarsi all'organizzazione.
 
-Il passo verso CQRS consiste nel permettere a letture e scritture di usare modelli differenti: uno orientato alle operazioni e alle regole, l'altro alle informazioni richieste. Questa è la distinzione descritta da [Martin Fowler nell'articolo su CQRS](https://martinfowler.com/bliki/CQRS.html). La separazione può rimanere interna allo stesso modulo e usare le stesse tabelle.
+Il passo verso CQRS, formulato da Greg Young a partire dal CQS, consiste nel permettere a letture e scritture di usare modelli differenti: uno orientato alle operazioni e alle regole, l'altro alle informazioni richieste. Questa è la distinzione descritta da [Martin Fowler nell'articolo su CQRS](https://martinfowler.com/bliki/CQRS.html). La separazione può rimanere interna allo stesso modulo e usare le stesse tabelle.
 
 ## Quanto stiamo separando?
 
@@ -65,7 +65,7 @@ export interface TodoQueries {
 
 Sono contratti illustrativi, non implementazioni complete. L'identità deve essere verificata e l'accesso autorizzato in entrambi i percorsi: un parametro `ownerId` non costituisce una protezione.
 
-L'implementazione di `reopen` verifica che il todo appartenga all'utente e ne governa la transizione di stato. Per proteggere il limite conserva il protocollo transazionale descritto nel capitolo precedente: lock sulla riga di coordinamento dell'utente, verifica dello stato e conteggio, eventuale aggiornamento. Una chiamata a un command handler, da sola, non risolve la concorrenza.
+L'implementazione di `reopen` verifica che il todo appartenga all'utente e ne governa la transizione di stato. Per proteggere il limite conserva il protocollo transazionale descritto nel [capitolo precedente](modular-monolith.md): lock sulla riga di coordinamento dell'utente, verifica dello stato e conteggio, eventuale aggiornamento. Una chiamata a un command handler, da sola, non risolve la concorrenza.
 
 `listActive` può eseguire una query sulle tabelle possedute da Todo e costruire il DTO senza caricare il modello di scrittura. In questo esempio la lista contiene tutti i todo attivi, al massimo tre: `activeCount` può essere derivato dalla lunghezza del risultato, evitando un secondo conteggio. Non estendiamo questo ragionamento a una lista paginata, dove lunghezza della pagina e totale sono diversi.
 
@@ -79,17 +79,17 @@ Supponiamo ora di mantenere il conteggio in una proiezione aggiornata in backgro
 
 Accade anche il contrario. Dopo una creazione, un conteggio in ritardo può mostrare un posto disponibile quando il limite è già raggiunto. **Il comando deve verificare la regola sui dati autorevoli, all'interno della propria transazione.** Il conteggio visualizzato aiuta l'utente, ma non autorizza l'operazione.
 
-Il ritardo richiede una scelta di prodotto: mostrare un aggiornamento in corso, usare il risultato del comando per aggiornare temporaneamente la schermata oppure attendere che la proiezione raggiunga una versione attesa. Occorre concordare quanto ritardo sia accettabile e cosa mostrare se l'aggiornamento si blocca.
+Il ritardo richiede una scelta di prodotto: mostrare un aggiornamento in corso, far restituire al comando il nuovo stato del todo per aggiornare temporaneamente la schermata (una deroga pragmatica al CQS, per cui un comando non restituirebbe nulla) oppure attendere che la proiezione raggiunga una versione attesa. Occorre concordare quanto ritardo sia accettabile e cosa mostrare se l'aggiornamento si blocca.
 
-Il team deve inoltre gestire consegne duplicate, ordinamento dove necessario, nuovi tentativi e recupero delle proiezioni. Se una vista va ricostruita, serve una fonte completa: lo stato corrente può bastare per la lista attiva, ma non per un report storico di tutte le riaperture. Pubblicare alcuni eventi non garantisce di aver conservato quella storia.
+Il team deve inoltre gestire consegne duplicate, ordinamento dove necessario, nuovi tentativi e recupero delle proiezioni. Anche far arrivare l'aggiornamento senza perdite dopo la conferma della transazione è il problema descritto in [Perché salvare dati e pubblicare un evento è difficile](outbox-pattern.md). Se una vista va ricostruita, serve una fonte completa: lo stato corrente può bastare per la lista attiva, ma non per un report storico di tutte le riaperture. Pubblicare alcuni eventi non garantisce di aver conservato quella storia.
 
 Sono nuove responsabilità operative e funzionali, difficili da giustificare per evitare una semplice query.
 
 ## Quando il beneficio diventa concreto
 
-Nel nostro esempio manterrei query dirette finché le letture rimangono piccole e misurabilmente adeguate. Valuterei una separazione maggiore se una dashboard dovesse aggregare grandi volumi di attività, se le sue query degradassero le scritture o se le rappresentazioni richieste cambiassero molto più spesso delle regole.
+Nel nostro esempio manterrei query dirette finché le letture rimangono piccole e misurabilmente adeguate. Valuterei una separazione maggiore se una dashboard dovesse aggregare grandi volumi di attività, se le sue query degradassero le scritture, se le rappresentazioni richieste cambiassero molto più spesso delle regole o se una lettura dovesse combinare dati di più moduli, dove il `JOIN` non è più consentito ([le alternative sono nel capitolo precedente](modular-monolith.md#e-le-letture-che-attraversano-i-moduli)).
 
-Prima misurerei tempi di risposta, piani delle query e carico, valutando indici e query più mirate. Se il problema riguarda soltanto un report, una struttura dedicata a quel report può essere sufficiente; non serve trasformare ogni lettura dell'applicazione.
+Prima misurerei tempi di risposta, piani delle query e carico, valutando indici e query più mirate. Se il problema riguarda soltanto un report, una struttura dedicata a quel report può essere sufficiente; non serve trasformare ogni lettura dell'applicazione. In PostgreSQL il primo gradino è spesso una [vista materializzata](https://www.postgresql.org/docs/18/rules-materializedviews.html) rinfrescata a intervalli, oppure una replica di lettura: niente broker e niente codice di sincronizzazione, con lo stesso prezzo di dati non aggiornati fino al refresh o per il ritardo di replica.
 
 Una proiezione persistente può ridurre il lavoro necessario a servire la dashboard, ma sposta lavoro sugli aggiornamenti. Un archivio separato può offrire risorse dedicate, ma richiede sincronizzazione e gestione operativa. La scelta dipende dal beneficio misurato e dalla tolleranza al ritardo.
 

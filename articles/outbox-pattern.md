@@ -31,9 +31,11 @@ Un `try/catch` aiuta a osservare l'errore quando il processo è vivo. Non conser
 
 Per mostrare i todo attualmente completati basta una query. Per un effetto locale nello stesso database può bastare aggiornare entrambe le tabelle nella stessa transazione. Prima di aggiungere un broker, verificherei queste possibilità.
 
-Il nostro report conta però le transizioni: completare, riaprire e completare di nuovo produce due fatti. Lo stato corrente non consente di ricostruirli. Inoltre Report deve continuare a essere indisponibile senza bloccare il completamento dei todo.
+Il nostro report conta però le transizioni: completare, riaprire e completare di nuovo produce due fatti. Lo stato corrente non consente di ricostruirli. Inoltre l'indisponibilità di Report non deve bloccare il completamento dei todo.
 
 Occorre quindi conservare il lavoro da consegnare. Il [Transactional Outbox descritto da Chris Richardson](https://microservices.io/patterns/data/transactional-outbox.html) registra il messaggio insieme alla modifica di business, nella stessa transazione locale. Un processo separato legge i messaggi confermati e li pubblica. La modifica e l'intenzione di comunicarla diventano atomiche; la consegna resta successiva.
+
+Il processo può interrogare periodicamente la tabella ([polling publisher](https://microservices.io/patterns/data/polling-publisher.html)) oppure leggere il log delle transazioni di PostgreSQL con uno strumento di change data capture come Debezium ([transaction log tailing](https://microservices.io/patterns/data/transaction-log-tailing.html)). La seconda strada elimina il polling, ma aggiunge infrastruttura da gestire: uno slot di replica logica fermo impedisce la rimozione del WAL e consuma spazio su disco, come avverte la [documentazione PostgreSQL](https://www.postgresql.org/docs/18/logicaldecoding-explanation.html). Partirei dal polling e valuterei la CDC quando latenza o volume lo giustificano.
 
 ![Todo e messaggio vengono salvati nella stessa transazione PostgreSQL. Dopo il commit, un worker pubblica sul broker; Report gestisce le consegne duplicate.](../diagrams/outbox-pattern/atomic-write.svg)
 
@@ -73,6 +75,22 @@ Se l'inserimento nell'outbox fallisce, fallisce anche il salvataggio del todo. S
 
 Il worker seleziona i messaggi pendenti, li invia e registra `publishedAt` dopo la conferma del broker. Tale conferma deve corrispondere alla garanzia di persistenza configurata nel sistema di messaggistica: una semplice scrittura su socket non basta.
 
+Un ciclo del worker, sempre in pseudocodice:
+
+```ts
+const batch = await outbox.claim({ limit: 50, leaseSeconds: 30 });
+
+for (const message of batch) {
+  // Attende la conferma di persistenza del broker, non solo l'invio.
+  await broker.publish(message.payload, { messageId: message.eventId });
+
+  // Un arresto qui lascia il messaggio pendente: al riavvio viene ripubblicato.
+  await outbox.markPublished(message.eventId, message.leaseToken);
+}
+```
+
+`claim` prenota le righe pendenti con una scadenza, in una transazione breve, e restituisce un token per ciascuna; `markPublished` non ha effetto se la prenotazione è scaduta.
+
 Resta comunque una finestra: il broker accetta il messaggio, poi il worker si arresta prima di aggiornare l'outbox. Al riavvio ripubblica lo stesso evento. Marcarlo come pubblicato prima dell'invio eliminerebbe quel duplicato introducendo di nuovo il rischio di perdita.
 
 Progettiamo dunque Report per tollerare consegne ripetute. Il pattern [Idempotent Consumer](https://microservices.io/patterns/communication-style/idempotent-consumer.html) propone di registrare gli identificativi elaborati insieme all'effetto applicativo. Nel nostro caso, una transazione di Report inserisce `(consumer, eventId)` con vincolo univoco e incrementa il conteggio soltanto se l'inserimento è nuovo. Il riscontro al broker arriva dopo il commit.
@@ -83,26 +101,26 @@ Questa soluzione rende idempotente l'aggiornamento nel database di Report. Un'em
 
 ## Concorrenza, ordine e recupero
 
-Con un solo worker il coordinamento iniziale è semplice. Con più worker serve un protocollo di acquisizione: per esempio una prenotazione temporanea delle righe, con scadenza e token che impedisca a un worker ormai scaduto di marcarle come proprie. La prenotazione deve poter essere recuperata dopo un arresto.
+Con un solo worker il coordinamento iniziale è semplice. Con più worker serve un protocollo di acquisizione: per esempio il `claim` con scadenza e token appena visto, che impedisce a un worker ormai scaduto di marcare le righe come proprie. La prenotazione deve poter essere recuperata dopo un arresto.
 
 Tenere lock e transazioni aperti durante chiamate al broker semplifica alcuni passaggi, ma occupa connessioni e prolunga i blocchi. Usare `SKIP LOCKED` può distribuire il lavoro, ma non garantisce da solo l'ordine: un worker può superarne un altro. PostgreSQL documenta questa opzione per accessi simili a una coda nella [sintassi di SELECT](https://www.postgresql.org/docs/18/sql-select.html#SQL-FOR-UPDATE-SHARE).
 
-Per il conteggio dei completamenti l'ordine di arrivo non cambia il risultato: usiamo l'istante del fatto e deduplichiamo. Una proiezione dello stato corrente avrebbe invece bisogno di distinguere completamento e riapertura fuori ordine, per esempio attraverso una versione per todo e una strategia per recuperare eventuali buchi. Un timestamp da solo non stabilisce necessariamente quell'ordine.
+Per il conteggio dei completamenti l'ordine di arrivo non cambia il risultato: usiamo l'istante del fatto e deduplichiamo. Una proiezione dello stato corrente avrebbe invece bisogno di distinguere completamento e riapertura fuori ordine, per esempio attraverso una versione per todo e una strategia per recuperare eventuali buchi. Un timestamp da solo non stabilisce necessariamente quell'ordine. Nemmeno l'id di sequenza dell'outbox coincide con l'ordine di commit: una transazione con id minore può confermare dopo una con id maggiore, e un cursore «dopo l'ultimo id letto» salterebbe quel messaggio. Per questo il worker seleziona i messaggi ancora pendenti invece di ricordare una posizione.
 
-L'outbox richiede inoltre una gestione quotidiana:
+L'outbox richiede inoltre una gestione quotidiana, simile a quella di ogni coda ([Quando il guasto attraversa una coda](distributed-systems-cost.md#quando-il-guasto-attraversa-una-coda)):
 
 - Nuovi tentativi distanziati, con attesa crescente e una componente casuale, per non sovraccaricare un broker in difficoltà.
 - Una quarantena ispezionabile per messaggi che falliscono ripetutamente, conservando il payload per la correzione e il reinvio.
 - Metriche sul numero di pendenti e sull'età del più vecchio, con una responsabilità esplicita sugli allarmi.
-- Pulizia dei messaggi pubblicati secondo una retention concordata, senza eliminare quelli ancora da consegnare.
+- Pulizia dei messaggi pubblicati secondo una retention concordata, senza eliminare quelli ancora da consegnare. In PostgreSQL la tabella ha molto ricambio: un indice parziale sui messaggi pendenti e autovacuum o partizioni per data aiutano a mantenerla piccola.
 
 La durata della deduplicazione in Report deve coprire anche i reinvii ammessi. Eliminare gli identificativi elaborati e poi rigiocare vecchi messaggi gonfierebbe il conteggio. L'outbox, se ripulita, non è automaticamente un archivio storico da cui ricostruire tutto.
 
 ## I compromessi e la decisione
 
-Otteniamo una registrazione durevole senza rendere il completamento dipendente dalla disponibilità immediata del broker. Paghiamo con una tabella, un worker, ritardi visibili, deduplicazione e procedure operative. La consegna richiede che infrastruttura e processi di recupero tornino a funzionare: l'outbox non garantisce un tempo massimo da sola.
+Otteniamo una registrazione durevole senza rendere il completamento dipendente dalla disponibilità immediata del broker. Paghiamo con una tabella, un worker, ritardi visibili, deduplicazione e procedure operative. La consegna richiede che infrastruttura e processi di recupero tornino a funzionare: l'outbox non garantisce un tempo massimo da sola. Il ritardo di consegna è un confine di consistenza: se ne parla in [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md).
 
-Per Todo scegliamo l'outbox perché perdere completamenti viola il requisito del report. Manteniamo un solo worker iniziale, misuriamo il ritardo e aumentiamo il parallelismo soltanto quando necessario. Non la introdurrei per una semplice lettura o per effetti locali già coperti dalla stessa transazione.
+Per Todo scegliamo l'outbox perché perdere completamenti viola il requisito del report. Manteniamo un solo worker iniziale, misuriamo il ritardo e aumentiamo il parallelismo soltanto quando necessario. Non la introdurrei per una semplice lettura, per effetti locali già coperti dalla stessa transazione o quando perdere un messaggio è accettabile e il consumatore può riconciliarsi leggendo direttamente la fonte.
 
 Verifichiamo tre guasti: rollback della scrittura, arresto dopo il commit e arresto dopo la pubblicazione ma prima della marcatura. Nei primi due casi controlliamo rispettivamente l'assenza del messaggio e il recupero della consegna; nel terzo, che Report conti una volta sola. Sono questi comportamenti a rendere utile il pattern.
 

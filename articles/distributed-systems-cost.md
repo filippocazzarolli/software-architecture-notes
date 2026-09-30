@@ -10,17 +10,17 @@ Separare il deployment cambia il modo in cui il sistema viene sviluppato, rilasc
 
 Torniamo all'applicazione Todo: un team, PostgreSQL, carico contenuto e nessuna attesa significativa per un rilascio comune. Account e Todo hanno confini espliciti. Il report storico riceve completamenti attraverso un contratto e può aggiornarsi in ritardo.
 
-Estrarre Account aggiungerebbe una dipendenza di rete alla verifica del proprietario. Se ogni creazione richiedesse quella chiamata, un'indisponibilità di Account impedirebbe anche nuove attività. Il processo sarebbe separato, ma la disponibilità del caso d'uso rimarrebbe collegata a entrambi.
+Estrarre Account aggiungerebbe una dipendenza di rete alla verifica del proprietario. Se ogni creazione richiedesse quella chiamata, un'indisponibilità di Account impedirebbe anche nuove attività. Il processo sarebbe separato, ma la disponibilità del caso d'uso rimarrebbe collegata a entrambi. In cifre: con due servizi sincroni al 99,9% ciascuno, assumendo guasti indipendenti, il percorso che li usa entrambi non supera circa il 99,8%, cioè da circa 8,8 a circa 17,5 ore di indisponibilità l'anno.
 
 Estrarre Report potrebbe invece isolare calcoli pesanti senza aggiungere una chiamata sincrona al completamento. Le due estrazioni non hanno lo stesso valore, anche se sul diagramma producono riquadri simili.
 
-Il punto di partenza è identificare un limite osservato: rilasci che si bloccano fra team, risorse consumate da una capacità specifica o requisiti di isolamento che un unico processo non soddisfa.
+Il punto di partenza è identificare un limite osservato: rilasci che si bloccano fra team, risorse consumate da una capacità specifica o requisiti di isolamento che un unico processo non soddisfa. Sono i segnali elencati nel capitolo sul [monolite modulare](modular-monolith.md#la-decisione-e-i-segnali-per-rivederla).
 
 ## La soluzione più semplice: migliorare ciò che esiste
 
 Se il problema è l'accoppiamento del codice, partirei dal [monolite modulare](modular-monolith.md) e dai [controlli sulle dipendenze](architecture-boundary-tests.md). Se una query lenta rallenta l'applicazione, misurerei il piano di esecuzione, gli indici e i limiti di concorrenza prima di separare servizi.
 
-Se il lavoro pesante è un'elaborazione in background, un worker separato può già offrire risorse e riavvii indipendenti, pur mantenendo repository e rilascio coordinati. Non occorre dichiarare subito un nuovo microservizio con una piattaforma dedicata.
+Se il lavoro pesante è un'elaborazione in background, un worker separato può già offrire risorse e riavvii indipendenti, pur mantenendo repository e rilascio coordinati. In NestJS può essere un'[applicazione standalone](https://docs.nestjs.com/standalone-applications), creata con `NestFactory.createApplicationContext`, che riusa gli stessi moduli con un altro punto d'ingresso; senza listener di rete, middleware, interceptor, pipe e guard non sono disponibili. Non occorre dichiarare subito un nuovo microservizio con una piattaforma dedicata.
 
 Anche il monolite richiede deployment ripetibili, monitoraggio e ripristino del database. I [prerequisiti dei microservizi descritti da Martin Fowler](https://martinfowler.com/bliki/MicroservicePrerequisites.html) evidenziano come automazione, osservabilità e collaborazione operativa diventino ancora più importanti quando aumentano le unità da gestire.
 
@@ -41,7 +41,9 @@ Confrontiamo due opzioni per il nucleo dell'applicazione. Nell'opzione distribui
 | Diagnosi | Un processo da seguire per il caso d'uso | Log e tracce da correlare tra processi |
 | Guasti | Risorse e processo condivisi | Isolamento possibile, dipendente dalle chiamate e dalle risorse comuni |
 
-Non sono vantaggi automatici. Due servizi sullo stesso nodo, con lo stesso database saturo, condividono ancora importanti cause di guasto. Due pipeline che richiedono sempre un rilascio simultaneo offrono poca autonomia effettiva.
+Non sono vantaggi automatici. Due servizi sullo stesso nodo, con lo stesso database saturo, condividono ancora importanti cause di guasto. Due pipeline che richiedono sempre un rilascio simultaneo offrono poca autonomia effettiva: è un *monolite distribuito*, con i costi della rete e senza il beneficio dell'indipendenza.
+
+Con archivi separati sparisce anche un'opzione del capitolo sul monolite modulare: la [vista condivisa](modular-monolith.md#e-le-letture-che-attraversano-i-moduli). Una schermata che combina dati di Account e Todo deve chiamare l'altro servizio o tenerne una copia che può restare indietro, e le operazioni che toccano entrambi gli archivi seguono le regole di [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md).
 
 ## Una chiamata di rete richiede una politica
 
@@ -69,7 +71,7 @@ Report si ferma per un'ora. Todo può continuare a salvare attività e messaggi 
 
 Osserviamo quindi ritardo del report, età del messaggio più vecchio, tasso di errori e capacità di smaltimento. Un allarme sulla sola CPU potrebbe non rilevare un consumer vivo che rifiuta tutti i messaggi.
 
-Messaggi non elaborabili possono finire in una coda dedicata, spesso chiamata *dead-letter queue*. Qualcuno deve ispezionarli, correggere la causa e decidere il reinvio senza duplicare i conteggi. Retention, spazio disco e velocità di recupero sono parte del requisito di affidabilità.
+Messaggi non elaborabili possono finire in una coda dedicata, spesso chiamata *dead-letter queue*. Qualcuno deve ispezionarli, correggere la causa e decidere il reinvio senza duplicare i conteggi. Retention, spazio disco e velocità di recupero sono parte del requisito di affidabilità. Il broker stesso è un componente con stato: aggiornamenti, alta disponibilità, retention e capacità richiedono un responsabile, come un database.
 
 Per la diagnosi colleghiamo log e tracce attraverso identificativi di richiesta, processo ed evento, rispettando i confini dei dati sensibili. Una dashboard deve aiutare a rispondere a una domanda concreta: il completamento è stato salvato, pubblicato, ricevuto e applicato? Ogni passaggio ha un responsabile e una procedura di recupero.
 
@@ -92,5 +94,7 @@ I microservizi possono comprare autonomia di rilascio, capacità e isolamento. I
 ---
 
 [Capitolo precedente: Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md)
+
+[Capitolo successivo: Dalla palla di fango ai confini espliciti](from-big-ball-of-mud.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

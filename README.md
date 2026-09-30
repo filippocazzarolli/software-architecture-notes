@@ -18,7 +18,7 @@ Gli esempi rimangono piccoli e usano TypeScript, con NestJS e PostgreSQL solo do
 
 ## Capitoli
 
-Tutti e dieci i capitoli sono disponibili, con diagrammi ed esempi pratici.
+Tutti e undici i capitoli sono disponibili, con diagrammi ed esempi pratici.
 
 | # | Capitolo | Domanda centrale | Stato |
 | --- | --- | --- | --- |
@@ -32,6 +32,19 @@ Tutti e dieci i capitoli sono disponibili, con diagrammi ed esempi pratici.
 | 8 | [Testare l'architettura, oltre alla logica di business](articles/architecture-boundary-tests.md) | Come impediamo che i confini architetturali si erodano? | Completato |
 | 9 | [Dove dovrebbe finire una transazione?](articles/transactions-eventual-consistency.md) | Quali operazioni richiedono consistenza immediata? | Completato |
 | 10 | [I microservizi sono anche una decisione operativa](articles/distributed-systems-cost.md) | Quali benefici giustificano il costo operativo di un sistema distribuito? | Completato |
+| 11 | [Dalla palla di fango ai confini espliciti](articles/from-big-ball-of-mud.md) | Da dove si comincia a mettere ordine in un sistema esistente, e fino a dove conviene arrivare? | Bozza |
+
+## Roadmap
+
+Articoli pianificati, non ancora scritti. Sono approfondimenti puntuali di temi che i capitoli attuali toccano senza svilupparli.
+
+| Titolo provvisorio | Domanda centrale | Nasce da |
+| --- | --- | --- |
+| Proteggere una regola sotto concorrenza: lock, versione o `SERIALIZABLE`? | Quale meccanismo di coordinamento costa meno per questa regola? | Capitoli 2 e 9 |
+| Provare i guasti: outbox e consumer che si riprendono | Come dimostriamo che il sistema recupera, invece di sperarlo? | Capitoli 5 e 8 |
+| Idempotenza: cosa succede se il client riprova? | Possiamo ripetere una richiesta senza duplicarne l'effetto? | Capitoli 5, 9 e 10 |
+| Migrazioni senza fermare il servizio | Come cambiamo lo schema mentre due versioni del codice convivono? | Capitolo 10 |
+| Serve davvero l'Event Sourcing? | Ci serve la storia come fonte di verità o come registro? | Capitoli 3 e 4 |
 
 ## Struttura del repository
 
@@ -46,9 +59,10 @@ articles/
 ├── domain-http-error-mapping.md          Settimo capitolo
 ├── architecture-boundary-tests.md        Ottavo capitolo
 ├── transactions-eventual-consistency.md  Nono capitolo
-└── distributed-systems-cost.md           Decimo capitolo
+├── distributed-systems-cost.md           Decimo capitolo
+└── from-big-ball-of-mud.md               Undicesimo capitolo
 examples/                                 Riservata a piccoli esempi autonomi
 diagrams/                                 Illustrazioni SVG richiamate negli articoli
 ```
 
-I dieci capitoli seguono un percorso dal problema di business ai costi operativi delle scelte architetturali. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione.
+I primi dieci capitoli seguono un percorso dal problema di business ai costi operativi delle scelte architetturali; l'undicesimo applica quel percorso a un sistema esistente. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione.

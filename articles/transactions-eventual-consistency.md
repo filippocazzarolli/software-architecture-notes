@@ -30,6 +30,7 @@ Manteniamo nel modulo Todo le operazioni che proteggono il limite. Con PostgreSQ
 ```ts
 // Pseudocodice: tutti i repository usano la stessa transazione.
 await db.transaction(async (tx) => {
+  await tx.userState.ensureExists(ownerId); // INSERT … ON CONFLICT DO NOTHING
   await tx.userState.lockForUpdate(ownerId);
   const todo = await tx.todos.getForUpdate(todoId);
   assertOwnedBy(todo, ownerId);
@@ -42,11 +43,22 @@ await db.transaction(async (tx) => {
 });
 ```
 
-La riga di coordinamento deve esistere ed essere univoca prima dell'uso. Le operazioni che acquisiscono più lock seguono un ordine coerente; creazione, riapertura e importazioni rispettano lo stesso protocollo. `ownerId` proviene da un contesto autorizzato, non da un parametro considerato affidabile senza controlli.
+La riga di coordinamento è univoca e viene creata, se manca, con `INSERT … ON CONFLICT DO NOTHING` prima di acquisire il lock. Le operazioni che acquisiscono più lock seguono un ordine coerente; creazione, riapertura e importazioni rispettano lo stesso protocollo. `ownerId` proviene da un contesto autorizzato, non da un parametro considerato affidabile senza controlli.
 
 Il conteggio viene eseguito dopo aver acquisito il lock: a questo isolamento il nuovo comando vede le modifiche già confermate dalla precedente operazione. Un conteggio letto prima dell'attesa non offre la stessa garanzia.
 
 Un'alternativa è `SERIALIZABLE`, gestendo i fallimenti di serializzazione con la ripetizione dell'intera transazione. PostgreSQL documenta questo requisito nel [capitolo sull'isolamento](https://www.postgresql.org/docs/18/transaction-iso.html#XACT-SERIALIZABLE). Cambiare livello non elimina il lavoro applicativo sui tentativi e sugli effetti esterni.
+
+Ho provato queste varianti su PostgreSQL 18.0, con due sessioni concorrenti che partono da due todo attivi e tentano una creazione ciascuna:
+
+| Variante | Todo attivi finali |
+| --- | --- |
+| Conteggio seguito da inserimento, senza coordinamento | 4 |
+| Conteggio letto prima di attendere il lock | 4 |
+| Lock sulla riga per utente, poi conteggio | 3 |
+| `SERIALIZABLE`, senza lock | 3, con una transazione respinta dall'errore `40001` |
+
+Le sessioni si sovrappongono perché una pausa di un secondo separa conteggio e inserimento: la prova rende deterministica una corsa che in produzione è rara e per questo pericolosa.
 
 ## Aggregati e transazioni non coincidono per definizione
 
@@ -56,7 +68,7 @@ Se ogni `Todo` viene modellato come aggregato distinto, il limite dei tre riguar
 
 Caricare tutta la storia delle attività in un unico grande oggetto sarebbe invece costoso e non necessario per il limite. Il confine va valutato in base alle invarianti, alle dimensioni e alla contesa: utenti diversi devono poter lavorare indipendentemente, mentre operazioni dello stesso utente possono dover attendere.
 
-Una transazione su più aggregati nello stesso database è tecnicamente possibile. Se capita spesso per le stesse regole, rivedrei i confini del modello; non introdurrei automaticamente comunicazione asincrona per rispettare uno slogan.
+Una transazione su più aggregati nello stesso database è tecnicamente possibile. Se capita spesso per le stesse regole, rivedrei i confini del modello; non introdurrei automaticamente comunicazione asincrona per rispettare uno slogan. Vaughn Vernon, in [Effective Aggregate Design](https://www.dddcommunity.org/library/vernon_2011/), propone regole pratiche per disegnare gli aggregati attorno ai vincoli di consistenza reali del dominio e non alla navigazione tra oggetti; la seconda parte tratta il rapporto tra aggregati diversi.
 
 ## Dopo il commit: una promessa diversa
 
@@ -68,7 +80,7 @@ Quando completiamo un todo, salviamo stato e messaggio nell'[outbox](outbox-patt
 
 Questa consistenza eventuale richiede un percorso concreto verso l'allineamento: consegna recuperabile, effetti idempotenti, rilevazione dei messaggi bloccati e una fonte sufficiente per riconciliare i dati. Non significa che basti aspettare perché ogni problema si risolva.
 
-L'interfaccia può confermare il completamento e indicare che il riepilogo si sta aggiornando. Se il report supera il ritardo concordato, il sistema deve renderlo osservabile. Una lettura vecchia non può autorizzare una nuova attività: il comando controlla sempre il limite sui dati autorevoli.
+L'interfaccia può confermare il completamento e indicare che il riepilogo si sta aggiornando, come discusso in [Quando una proiezione asincrona cambia il prodotto](cqrs-overkill.md#quando-una-proiezione-asincrona-cambia-il-prodotto). Se il report supera il ritardo concordato, il sistema deve renderlo osservabile. Una lettura vecchia non può autorizzare una nuova attività: il comando controlla sempre il limite sui dati autorevoli.
 
 ## Quando il processo attraversa più contesti
 
@@ -95,13 +107,13 @@ Conserviamo quindi lo stato del processo, i passi completati e le operazioni pen
 
 Nel frattempo l'ordine può essere visibile come «in attesa». Una prenotazione può avere una scadenza; il processo deve gestire anche l'arrivo tardivo di una risposta dopo la scadenza o dopo una richiesta di annullamento. L'assenza di isolamento globale rende questi stati parte del modello, non dettagli tecnici eliminabili dal diagramma.
 
-Un orchestratore può rendere espliciti passi e recupero. Con pochi partecipanti, eventi e reazioni locali possono bastare, ma la sequenza complessiva deve restare comprensibile. Una saga generica non è necessaria per consegnare un singolo evento a Report.
+Un orchestratore, cioè un *process manager* che conserva lo stato del processo, può rendere espliciti passi e recupero. Con pochi partecipanti, una coreografia di eventi e reazioni locali può bastare, ma la sequenza complessiva deve restare comprensibile. Una saga generica non è necessaria per consegnare un singolo evento a Report.
 
 ## I compromessi e la decisione
 
-Una transazione locale offre un esito atomico e un recupero semplice tramite rollback, ma lock lunghi aumentano contesa e consumo di connessioni. Un processo distribuito permette autonomia dei partecipanti, ma introduce stati intermedi, messaggi duplicati, compensazioni e diagnosi più difficili.
+Una transazione locale offre un esito atomico e un recupero semplice tramite rollback, ma lock lunghi aumentano contesa e consumo di connessioni. Un processo distribuito permette autonomia dei partecipanti, ma introduce stati intermedi, messaggi duplicati, compensazioni e diagnosi più difficili. Il [capitolo successivo](distributed-systems-cost.md) ne elenca i costi operativi.
 
-Transazioni distribuite possono essere valutate quando tutte le risorse supportano il protocollo e il costo di coordinamento è accettabile. Non le assumiamo disponibili per broker e fornitori esterni, né trasformiamo una transazione locale utile in una saga senza un'esigenza concreta.
+Le transazioni distribuite con *two-phase commit* possono essere valutate quando tutte le risorse supportano il protocollo e il costo di coordinamento è accettabile. PostgreSQL offre [`PREPARE TRANSACTION`](https://www.postgresql.org/docs/18/sql-prepare-transaction.html), ma la sua documentazione la destina a un gestore di transazioni esterno, non al codice applicativo. Non le assumiamo disponibili per broker e fornitori esterni, né trasformiamo una transazione locale utile in una saga senza un'esigenza concreta.
 
 Per Todo manteniamo locale la garanzia dei tre attivi e registriamo i messaggi nella stessa transazione delle modifiche. Report si aggiorna dopo il commit. Verifichiamo la concorrenza sul limite e la ripresa delle consegne dopo un guasto.
 
