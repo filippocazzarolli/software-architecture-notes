@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="520" viewBox="0 0 1040 520" role="img" aria-labelledby="title desc">
+  <title id="title">Il modello propone; il dominio decide</title>
+  <desc id="desc">Tre riquadri da sinistra a destra: l'adapter in infrastructure, che conosce l'SDK del fornitore, il prompt e il formato della risposta; il caso d'uso ProposeTodos, che conta i todo attivi, chiede pochi candidati al modello attraverso il port e tronca senza scrivere nulla; il caso d'uso CreateTodo, lo stesso della creazione manuale, che applica il limite dei tre attivi nella transazione. Una fascia in basso elenca cosa non entra nel dominio.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="520" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">2.1 / DOMINIO E MODELLO</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Il modello propone; il dominio decide</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Il port è l'unico punto in cui il modello entra nell'applicazione.</text>
+
+    <rect x="32" y="146" width="300" height="190" rx="12" fill="#fff4e6" stroke="#dcbf92"/>
+    <rect x="370" y="146" width="300" height="190" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="708" y="146" width="300" height="190" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+
+    <text x="52" y="176" font-size="14" font-weight="700" fill="#b07a2a">INFRASTRUCTURE</text>
+    <text x="52" y="206" font-size="21" font-weight="700">Adapter</text>
+    <text x="52" y="240" font-size="15" fill="#52647a">Conosce l'SDK del fornitore</text>
+    <text x="52" y="262" font-size="15" fill="#52647a">Compone e versiona il prompt</text>
+    <text x="52" y="284" font-size="15" fill="#52647a">Valida la risposta (capitolo 2.3)</text>
+
+    <text x="390" y="176" font-size="14" font-weight="700" fill="#52647a">APPLICATION</text>
+    <text x="390" y="206" font-size="21" font-weight="700">ProposeTodos</text>
+    <text x="390" y="240" font-size="15" fill="#52647a">Conta i todo attivi</text>
+    <text x="390" y="262" font-size="15" fill="#52647a">Chiede pochi candidati (maxItems)</text>
+    <text x="390" y="284" font-size="15" fill="#52647a">Tronca, non scrive nulla</text>
+
+    <text x="728" y="176" font-size="14" font-weight="700" fill="#355b91">APPLICATION + DOMINIO</text>
+    <text x="728" y="206" font-size="21" font-weight="700">CreateTodo</text>
+    <text x="728" y="240" font-size="15" fill="#52647a">Lo stesso della creazione manuale</text>
+    <text x="728" y="262" font-size="15" fill="#52647a">Limite dei tre attivi in transazione</text>
+    <text x="728" y="284" font-size="15" fill="#52647a">TodoLimitExceeded → 409</text>
+
+    <path d="M332 241 L366 241" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M670 241 L704 241" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="520" y="362" font-size="14" text-anchor="middle" fill="#14766d">Prima freccia: il port TodoSuggester. Seconda freccia: la conferma dell'utente, una normale richiesta HTTP.</text>
+
+    <rect x="32" y="384" width="976" height="66" rx="12" fill="#fff" stroke="#bbc9d8" stroke-dasharray="6 4"/>
+    <text x="52" y="411" font-size="15" font-weight="700">Cosa non entra nel dominio</text>
+    <text x="52" y="434" font-size="15" fill="#52647a">SDK, prompt e formato della risposta vivono nell'adapter. La regola dei tre attivi non sta nel prompt, se non come quantità.</text>
+
+    <text x="36" y="496" font-size="15" fill="#52647a">Se il fornitore sparisse, ProposeTodos restituirebbe una lista vuota e CreateTodo funzionerebbe come oggi.</text>
+  </g>
+</svg>

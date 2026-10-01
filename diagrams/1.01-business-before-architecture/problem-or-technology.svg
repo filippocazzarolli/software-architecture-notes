@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="530" viewBox="0 0 1040 530" role="img" aria-labelledby="title desc">
+  <title id="title">Da dove parte la scelta?</title>
+  <desc id="desc">Due percorsi a confronto. Partendo dal problema del cliente si chiariscono regole e vincoli e si sceglie una tecnologia adatta. Partendo da una tecnologia preferita si rischia di reinterpretare il problema per applicarla, costruendo una soluzione da giustificare.</desc>
+  <defs>
+    <marker id="green" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#14766d" stroke-width="1.5"/></marker>
+    <marker id="red" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#a34736" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="530" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">1.1 / IL PUNTO DI PARTENZA</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Da dove parte la scelta?</text>
+    <rect x="28" y="114" width="984" height="170" rx="14" fill="#e8f5f1"/>
+    <text x="52" y="147" font-size="16" font-weight="700" fill="#14766d">DAL PROBLEMA / UNA SCELTA MOTIVATA</text>
+    <g fill="#fff" stroke="#91c9bd">
+      <rect x="52" y="167" width="290" height="90" rx="10"/>
+      <rect x="375" y="167" width="290" height="90" rx="10"/>
+      <rect x="698" y="167" width="290" height="90" rx="10"/>
+    </g>
+    <text x="197" y="203" text-anchor="middle" font-size="21" font-weight="700">Problema del cliente</text>
+    <text x="197" y="232" text-anchor="middle" font-size="17" fill="#52647a">Che cosa deve migliorare?</text>
+    <text x="520" y="203" text-anchor="middle" font-size="21" font-weight="700">Regole e vincoli</text>
+    <text x="520" y="232" text-anchor="middle" font-size="17" fill="#52647a">Che cosa dobbiamo garantire?</text>
+    <text x="843" y="203" text-anchor="middle" font-size="21" font-weight="700">Tecnologia adatta</text>
+    <text x="843" y="232" text-anchor="middle" font-size="17" fill="#52647a">Scelta in base alle esigenze</text>
+    <g fill="none" stroke="#14766d" stroke-width="2" marker-end="url(#green)">
+      <path d="M344 212 H369"/>
+      <path d="M667 212 H692"/>
+    </g>
+    <rect x="28" y="304" width="984" height="170" rx="14" fill="#fbefeb"/>
+    <text x="52" y="337" font-size="16" font-weight="700" fill="#a34736">DALLA TECNOLOGIA / IL RISCHIO DI FORZARE IL PROBLEMA</text>
+    <g fill="#fff" stroke="#dfb2a6">
+      <rect x="52" y="357" width="290" height="90" rx="10"/>
+      <rect x="375" y="357" width="290" height="90" rx="10"/>
+      <rect x="698" y="357" width="290" height="90" rx="10"/>
+    </g>
+    <text x="197" y="393" text-anchor="middle" font-size="21" font-weight="700">Tecnologia preferita</text>
+    <text x="197" y="422" text-anchor="middle" font-size="17" fill="#52647a">«Vogliamo usare questo»</text>
+    <text x="520" y="393" text-anchor="middle" font-size="21" font-weight="700">Problema reinterpretato</text>
+    <text x="520" y="422" text-anchor="middle" font-size="17" fill="#52647a">Cerchiamo dove applicarla</text>
+    <text x="843" y="393" text-anchor="middle" font-size="21" font-weight="700">Soluzione da giustificare</text>
+    <text x="843" y="422" text-anchor="middle" font-size="17" fill="#52647a">Il valore resta da verificare</text>
+    <g fill="none" stroke="#a34736" stroke-width="2" marker-end="url(#red)">
+      <path d="M344 402 H369"/>
+      <path d="M667 402 H692"/>
+    </g>
+    <text x="520" y="509" text-anchor="middle" font-size="19" font-weight="700">La scelta tecnica deve poter essere spiegata attraverso il bisogno.</text>
+  </g>
+</svg>

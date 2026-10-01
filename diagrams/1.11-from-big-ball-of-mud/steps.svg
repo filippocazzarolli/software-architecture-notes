@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="520" viewBox="0 0 1040 520" role="img" aria-labelledby="title desc">
+  <title id="title">Un confine alla volta, con una prova di conclusione</title>
+  <desc id="desc">Sei passi in sequenza: rete di sicurezza, una casa per la regola, debito congelato, dati con proprietario, adattatore verso il codice vecchio, strumenti tattici del DDD dove serve. Ogni passo riporta la condizione che ne segna la conclusione.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="520" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">1.11 / DAL FANGO AI CONFINI</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Un confine alla volta, con una prova di conclusione</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Ogni passo vale da solo. Ci si può fermare con un sistema migliore di prima.</text>
+
+    <rect x="32" y="146" width="300" height="150" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+    <rect x="370" y="146" width="300" height="150" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="708" y="146" width="300" height="150" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="32" y="326" width="300" height="150" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="370" y="326" width="300" height="150" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="708" y="326" width="300" height="150" rx="12" fill="#e8f5f1" stroke="#91c9bd"/>
+
+    <text x="52" y="176" font-size="14" font-weight="700" fill="#355b91">01</text>
+    <text x="52" y="206" font-size="21" font-weight="700">Rete di sicurezza</text>
+    <text x="52" y="240" font-size="15" fill="#52647a">Concluso quando togliere la regola</text>
+    <text x="52" y="262" font-size="15" fill="#52647a">fa fallire almeno un test.</text>
+
+    <text x="390" y="176" font-size="14" font-weight="700" fill="#52647a">02</text>
+    <text x="390" y="206" font-size="21" font-weight="700">Una casa per la regola</text>
+    <text x="390" y="240" font-size="15" fill="#52647a">Concluso quando il controller</text>
+    <text x="390" y="262" font-size="15" fill="#52647a">non decide più nulla.</text>
+
+    <text x="728" y="176" font-size="14" font-weight="700" fill="#52647a">03</text>
+    <text x="728" y="206" font-size="21" font-weight="700">Debito congelato</text>
+    <text x="728" y="240" font-size="15" fill="#52647a">Concluso quando la CI blocca</text>
+    <text x="728" y="262" font-size="15" fill="#52647a">ogni import vietato nuovo.</text>
+
+    <text x="52" y="356" font-size="14" font-weight="700" fill="#52647a">04</text>
+    <text x="52" y="386" font-size="21" font-weight="700">Dati con proprietario</text>
+    <text x="52" y="420" font-size="15" fill="#52647a">Concluso quando una colonna privata</text>
+    <text x="52" y="442" font-size="15" fill="#52647a">cambia senza toccare altri moduli.</text>
+
+    <text x="390" y="356" font-size="14" font-weight="700" fill="#52647a">05</text>
+    <text x="390" y="386" font-size="21" font-weight="700">Adattatore verso il fango</text>
+    <text x="390" y="420" font-size="15" fill="#52647a">Concluso quando il nuovo importa</text>
+    <text x="390" y="442" font-size="15" fill="#52647a">il vecchio solo dall'adattatore.</text>
+
+    <text x="728" y="356" font-size="14" font-weight="700" fill="#14766d">06</text>
+    <text x="728" y="386" font-size="21" font-weight="700">DDD tattico, se serve</text>
+    <text x="728" y="420" font-size="15" fill="#52647a">Concluso quando ogni aggregato</text>
+    <text x="728" y="442" font-size="15" fill="#52647a">protegge un'invariante reale.</text>
+
+    <path d="M332 221 L366 221" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M670 221 L704 221" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M858 296 L858 311 L182 311 L182 322" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M332 401 L366 401" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M670 401 L704 401" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <text x="36" y="503" font-size="15" fill="#52647a">Gli strumenti tattici del DDD arrivano per ultimi, dove c'è un'invariante da proteggere.</text>
+  </g>
+</svg>

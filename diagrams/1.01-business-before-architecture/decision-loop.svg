@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="520" viewBox="0 0 1040 520" role="img" aria-labelledby="title desc">
+  <title id="title">Dal problema alla decisione, insieme al cliente</title>
+  <desc id="desc">Quattro passaggi: problema e persone, esempi concreti, regole e vincoli, decisione tecnica. Una freccia di ritorno dalla decisione al problema indica il confronto con cliente e utenti attraverso risultati osservati e nuove domande.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+    <marker id="feedback" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#14766d" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="520" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">1.1 / COMPRENDERE E VERIFICARE</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Le scelte tecniche partono dal problema</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Esempi condivisi rendono esplicite le regole e le ipotesi.</text>
+    <rect x="32" y="154" width="220" height="178" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+    <rect x="284" y="154" width="220" height="178" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="536" y="154" width="220" height="178" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="788" y="154" width="220" height="178" rx="12" fill="#e8f5f1" stroke="#91c9bd"/>
+    <text x="52" y="184" font-size="14" font-weight="700" fill="#355b91">01</text>
+    <text x="304" y="184" font-size="14" font-weight="700" fill="#52647a">02</text>
+    <text x="556" y="184" font-size="14" font-weight="700" fill="#52647a">03</text>
+    <text x="808" y="184" font-size="14" font-weight="700" fill="#14766d">04</text>
+    <text x="52" y="217" font-size="22" font-weight="700">Problema</text>
+    <text x="52" y="244" font-size="22" font-weight="700">e persone</text>
+    <text x="52" y="282" font-size="17">Cosa deve migliorare?</text>
+    <text x="52" y="308" font-size="17">Per chi?</text>
+    <text x="304" y="217" font-size="22" font-weight="700">Esempi</text>
+    <text x="304" y="244" font-size="22" font-weight="700">concreti</text>
+    <text x="304" y="282" font-size="17">Cosa succede oggi?</text>
+    <text x="304" y="308" font-size="17">Cosa ci aspettiamo?</text>
+    <text x="556" y="217" font-size="22" font-weight="700">Regole</text>
+    <text x="556" y="244" font-size="22" font-weight="700">e vincoli</text>
+    <text x="556" y="282" font-size="17">Cosa deve valere?</text>
+    <text x="556" y="308" font-size="17">Quali limiti abbiamo?</text>
+    <text x="808" y="217" font-size="22" font-weight="700">Decisione</text>
+    <text x="808" y="244" font-size="22" font-weight="700">tecnica</text>
+    <text x="808" y="282" font-size="17">Quale soluzione?</text>
+    <text x="808" y="308" font-size="17">Con quali compromessi?</text>
+    <g stroke="#52647a" stroke-width="2" fill="none" marker-end="url(#arrow)">
+      <path d="M254 237 H278"/>
+      <path d="M506 237 H530"/>
+      <path d="M758 237 H782"/>
+    </g>
+    <path d="M898 334 V408 H142 V342" fill="none" stroke="#14766d" stroke-width="2.5" marker-end="url(#feedback)"/>
+    <rect x="285" y="389" width="470" height="36" rx="8" fill="#e8f5f1"/>
+    <text x="520" y="413" text-anchor="middle" font-size="18" font-weight="700" fill="#14766d">Risultati osservati e nuove domande</text>
+    <text x="520" y="467" text-anchor="middle" font-size="19">Confronto con cliente e utenti, prototipi e uso reale.</text>
+    <text x="520" y="495" text-anchor="middle" font-size="17" fill="#52647a">La comprensione si aggiorna mentre il prodotto prende forma.</text>
+  </g>
+</svg>
