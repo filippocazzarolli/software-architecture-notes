@@ -60,6 +60,10 @@ async suggest(input: SuggestInput, deadline: Deadline): Promise<string[]> {
 
 `SuggestionUnavailable` è un errore tecnico, non di dominio. Il caso d'uso lo traduce in una lista vuota e lo registra; non diventa un `409`, per la stessa ragione per cui nel [settimo capitolo](07-domain-http-error-mapping.md) un database irraggiungibile non diventa un falso «limite raggiunto».
 
+![Tre riquadri: il confine HTTP con limite di caratteri, budget di tempo e cache; la paratia con concorrenza massima dedicata e interruttore; l'adapter con timeout pari al tempo residuo, un solo tentativo ripetuto e SuggestionUnavailable. Una freccia di ritorno mostra la via d'uscita verso la creazione manuale. Una fascia in basso descrive il fornitore.](../diagrams/14-llm-call-is-remote-call/call-policy.svg)
+
+*Figura 1 — Ogni passaggio decide qualcosa prima di pagare la chiamata. La via d'uscita è ciò che tiene in piedi l'applicazione.*
+
 ## Isolare la dipendenza lenta dal resto
 
 Il lunedì del fornitore lento ha fermato anche la creazione manuale perché le chiamate al modello condividevano con tutto il resto le connessioni in uscita e i worker del server. Il rimedio è un limite di concorrenza dedicato: un numero massimo di chiamate al modello in corso contemporaneamente, oltre il quale la richiesta di suggerimento fallisce subito con la via d'uscita, senza mettersi in coda. È il principio delle paratie di una nave: il compartimento del modello può allagarsi senza che affondi il resto.

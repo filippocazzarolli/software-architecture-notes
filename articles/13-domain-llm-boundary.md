@@ -74,6 +74,10 @@ export class ProposeTodos {
 
 `maxItems` è un suggerimento al modello, utile per non pagare titoli che scarteremo. `slice` è la garanzia del caso d'uso. Il limite vero resta nella transazione di `CreateTodo`: fra la proposta e la conferma l'utente può aver attivato un altro todo da un'altra scheda, e la proposta non riserva alcun posto.
 
+![Tre riquadri: l'adapter in infrastructure conosce SDK, prompt e formato della risposta; ProposeTodos conta i todo attivi, chiede pochi candidati attraverso il port e tronca senza scrivere; CreateTodo, lo stesso della creazione manuale, applica il limite dei tre attivi nella transazione. Una fascia in basso elenca cosa non entra nel dominio.](../diagrams/13-domain-llm-boundary/port-and-adapter.svg)
+
+*Figura 1 — Il modello entra dall'adapter e si ferma al port. Le proposte confermate seguono il percorso di qualsiasi creazione.*
+
 ## Un esempio: l'adapter al confine
 
 L'adapter vive in infrastructure e conosce tre cose che nessun altro deve conoscere: l'SDK, il prompt e il formato della risposta.

@@ -65,6 +65,10 @@ Tre scelte meritano una riga. Lo schema non è `strict`: un campo in più non fa
 
 Il parser è deterministico e si testa senza modello: una fixture per ogni riga della tabella, con la risposta grezza e il risultato atteso. Non serve un modello per sapere cosa fa il codice con «sette titoli, uno vuoto».
 
+![Tre riquadri: il parser nell'adapter trasforma una forma inattesa in errore tecnico, scarta i titoli non validi e ignora i campi sconosciuti; il caso d'uso tronca, deduplica e prende proprietario e stato dalla sessione; il dominio costruisce il titolo e applica il limite dei tre attivi. Una fascia in basso ricorda che il modello non ha strumenti né permessi.](../diagrams/15-llm-output-untrusted-input/three-boundaries.svg)
+
+*Figura 1 — Forma, mandato e regole si verificano in tre posti diversi. Nessuno dei tre si fida del precedente.*
+
 ## La via di ritorno passa dalla stessa porta
 
 Le proposte tornano all'interfaccia, l'utente ne seleziona alcune e le conferma. Da qui in poi non esiste un percorso privilegiato: la conferma è una normale richiesta HTTP con un elenco di titoli, che entra nello stesso controller, nello stesso `CreateTodo` e nella stessa transazione di una creazione manuale. Il dominio costruisce il titolo come value object, applica il limite dei tre attivi con il protocollo del [monolite modulare](02-modular-monolith.md#dove-vive-la-regola-dei-tre-todo-attivi) e rifiuta il quarto con `TodoLimitExceeded`.
