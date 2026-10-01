@@ -10,7 +10,7 @@ Brian Foote e Joseph Yoder hanno chiamato questo stato [big ball of mud](http://
 
 Nel codice Todo i sintomi sono concreti. `TodoService` importa `AccountRepository` e aggiorna direttamente le colonne degli utenti. Il controllo sui tre todo attivi vive nel controller HTTP e, in una versione diversa, in un job notturno di importazione. I test passano, ma non dicono se una modifica è sicura.
 
-Le cartelle `domain/` e `infrastructure/` esistono già. Il costo non viene dall'assenza di pattern, ma dall'assenza di confini: nessuna dipendenza è vietata, quindi ogni dipendenza è possibile. Il [capitolo sul monolite modulare](modular-monolith.md#le-cartelle-non-bastano) spiega perché le cartelle, da sole, non bastano.
+Le cartelle `domain/` e `infrastructure/` esistono già. Il costo non viene dall'assenza di pattern, ma dall'assenza di confini: nessuna dipendenza è vietata, quindi ogni dipendenza è possibile. Il [capitolo sul monolite modulare](02-modular-monolith.md#le-cartelle-non-bastano) spiega perché le cartelle, da sole, non bastano.
 
 Prima di intervenire conviene distinguere tre situazioni. Codice che cambia spesso e fa male ogni volta. Codice stabile che nessuno tocca da anni. Codice destinato a essere sostituito. Solo il primo giustifica il lavoro descritto qui.
 
@@ -18,7 +18,7 @@ Prima di intervenire conviene distinguere tre situazioni. Codice che cambia spes
 
 Un refactoring senza misura parte dal codice più brutto, non da quello più costoso. La storia dei commit dice quali file cambiano insieme; il registro dei difetti dice dove nascono i problemi; un elenco dei punti d'ingresso reali (HTTP, CLI, importazioni, job) dice quanti percorsi attraversano la stessa regola.
 
-Il codice che non cambia mai non si tocca: riorganizzarlo è costo senza beneficio. È lo stesso principio del [capitolo sui costi operativi](distributed-systems-cost.md#la-soluzione-più-semplice-migliorare-ciò-che-esiste): migliorare ciò che esiste prima di sostituirlo.
+Il codice che non cambia mai non si tocca: riorganizzarlo è costo senza beneficio. È lo stesso principio del [capitolo sui costi operativi](10-distributed-systems-cost.md#la-soluzione-più-semplice-migliorare-ciò-che-esiste): migliorare ciò che esiste prima di sostituirlo.
 
 Il risultato è un elenco corto di zone calde, ciascuna con la regola di business che dovrebbe proteggere. Nel nostro caso: creazione e riapertura dei todo, con il limite dei tre attivi.
 
@@ -26,7 +26,7 @@ Il risultato è un elenco corto di zone calde, ciascuna con la regola di busines
 
 Ogni passo ha valore da solo e una condizione di conclusione che si verifica, non che si percepisce. Ci si può fermare a qualunque punto con un sistema migliore di prima.
 
-![Sei passi in sequenza, ciascuno con la condizione che ne segna la conclusione: rete di sicurezza, una casa per la regola, debito congelato, dati con proprietario, adattatore verso il codice vecchio, strumenti tattici del DDD dove serve.](../diagrams/from-big-ball-of-mud/steps.svg)
+![Sei passi in sequenza, ciascuno con la condizione che ne segna la conclusione: rete di sicurezza, una casa per la regola, debito congelato, dati con proprietario, adattatore verso il codice vecchio, strumenti tattici del DDD dove serve.](../diagrams/11-from-big-ball-of-mud/steps.svg)
 
 *Figura 1 — La mappa del percorso: ogni passo si chiude con una verifica e gli strumenti del DDD arrivano per ultimi.*
 
@@ -34,7 +34,7 @@ Ogni passo ha valore da solo e una condizione di conclusione che si verifica, no
 
 I *test di caratterizzazione* documentano ciò che il sistema fa davvero, non ciò che vorremmo facesse. Michael Feathers, che ha introdotto il termine in *Working Effectively with Legacy Code*, lo spiega in [Characterization Testing](https://michaelfeathers.silvrback.com/characterization-testing): se non è chiaro che un comportamento sia un difetto, il test resta e si parla con gli utenti.
 
-Il primo oggetto è la regola dei tre todo, esercitata da **tutti** gli ingressi, compresa l'importazione che oggi la aggira. La [tabella di esempi del primo capitolo](business-before-architecture.md#rendere-la-comprensione-verificabile) diventa il test, riga per riga e ingresso per ingresso:
+Il primo oggetto è la regola dei tre todo, esercitata da **tutti** gli ingressi, compresa l'importazione che oggi la aggira. La [tabella di esempi del primo capitolo](01-business-before-architecture.md#rendere-la-comprensione-verificabile) diventa il test, riga per riga e ingresso per ingresso:
 
 ```ts
 // test/characterization/active-todo-limit.spec.ts
@@ -58,9 +58,9 @@ Passo concluso quando ogni percorso che può aumentare i todo attivi ha un test,
 
 ### 2. Una sola casa per ogni regola
 
-La regola viene estratta in un caso d'uso chiamato da tutti gli ingressi: una funzione come `assertCanActivate`, un errore di dominio che non conosce HTTP e il protocollo di coordinamento per utente. Niente aggregati, per ora. Il modo è quello dei capitoli su [dove vive la regola](modular-monolith.md#dove-vive-la-regola-dei-tre-todo-attivi) e su [un errore significativo](domain-http-error-mapping.md#la-soluzione-più-semplice-un-errore-significativo).
+La regola viene estratta in un caso d'uso chiamato da tutti gli ingressi: una funzione come `assertCanActivate`, un errore di dominio che non conosce HTTP e il protocollo di coordinamento per utente. Niente aggregati, per ora. Il modo è quello dei capitoli su [dove vive la regola](02-modular-monolith.md#dove-vive-la-regola-dei-tre-todo-attivi) e su [un errore significativo](07-domain-http-error-mapping.md#la-soluzione-più-semplice-un-errore-significativo).
 
-Il controller smette di decidere: invoca il caso d'uso e [traduce l'esito](domain-http-error-mapping.md#un-esempio-tradurre-al-confine-http). La trappola è spostare la regola in una classe dentro `domain/` che continua a importare l'ORM: conta la direzione delle dipendenze, non il nome della cartella.
+Il controller smette di decidere: invoca il caso d'uso e [traduce l'esito](07-domain-http-error-mapping.md#un-esempio-tradurre-al-confine-http). La trappola è spostare la regola in una classe dentro `domain/` che continua a importare l'ORM: conta la direzione delle dipendenze, non il nome della cartella.
 
 Passo concluso quando cancellare il controllo nel controller non fa passare il quarto todo, perché il caso d'uso lo rifiuta comunque.
 
@@ -81,21 +81,21 @@ Violazione introdotta domani  →  assente dalla baseline     →  la CI fallisc
 Violazione corretta           →  tolta con shrink-only      →  la baseline si accorcia
 ```
 
-Le regole sono quelle del [capitolo sui test architetturali](architecture-boundary-tests.md#introdurre-le-regole-in-un-progetto-esistente): poche all'inizio, ogni eccezione con un responsabile e una condizione di rimozione, nessuna esclusione generica di `legacy/`.
+Le regole sono quelle del [capitolo sui test architetturali](08-architecture-boundary-tests.md#introdurre-le-regole-in-un-progetto-esistente): poche all'inizio, ogni eccezione con un responsabile e una condizione di rimozione, nessuna esclusione generica di `legacy/`.
 
 Passo concluso quando la CI fallisce su un import vietato introdotto apposta, e il file delle eccezioni è versionato e si accorcia a ogni iterazione.
 
 ### 4. Un proprietario ai dati, un modulo alla volta
 
-Il primo modulo è la zona calda più piccola con una regola chiara: Todo, non Account. Riceve un `public.ts` e gli accessi diretti dagli altri moduli passano da lì, come nell'[esempio Account e Todo](modular-monolith.md#un-esempio-account-e-todo).
+Il primo modulo è la zona calda più piccola con una regola chiara: Todo, non Account. Riceve un `public.ts` e gli accessi diretti dagli altri moduli passano da lì, come nell'[esempio Account e Todo](02-modular-monolith.md#un-esempio-account-e-todo).
 
-Le query che attraversavano i moduli non spariscono: vanno scelte tra chiamata batch, copia locale e vista dichiarata, le [tre opzioni del capitolo sul monolite](modular-monolith.md#e-le-letture-che-attraversano-i-moduli). Tabelle e migrazioni ricevono un proprietario, altrimenti [il database aggira il confine](bounded-contexts.md#il-database-può-aggirare-il-confine).
+Le query che attraversavano i moduli non spariscono: vanno scelte tra chiamata batch, copia locale e vista dichiarata, le [tre opzioni del capitolo sul monolite](02-modular-monolith.md#e-le-letture-che-attraversano-i-moduli). Tabelle e migrazioni ricevono un proprietario, altrimenti [il database aggira il confine](06-bounded-contexts.md#il-database-può-aggirare-il-confine).
 
 Passo concluso quando rinominare una colonna privata del modulo non richiede modifiche fuori dal modulo.
 
 ### 5. Proteggersi da ciò che resta nel fango
 
-Account resta com'è. Il modulo nuovo non lo importa: dipende da un adattatore che traduce il linguaggio vecchio in quello nuovo, una *anti-corruption layer* nel senso della [documentazione Microsoft](https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer), cioè una facciata tra sottosistemi che non condividono la stessa semantica. L'esempio è quello di [dipendere da ciò che serve](bounded-contexts.md#un-esempio-dipendere-da-ciò-che-serve).
+Account resta com'è. Il modulo nuovo non lo importa: dipende da un adattatore che traduce il linguaggio vecchio in quello nuovo, una *anti-corruption layer* nel senso della [documentazione Microsoft](https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer), cioè una facciata tra sottosistemi che non condividono la stessa semantica. L'esempio è quello di [dipendere da ciò che serve](06-bounded-contexts.md#un-esempio-dipendere-da-ciò-che-serve).
 
 La sostituzione del resto, se e quando servirà, è graduale. Nello [Strangler Fig](https://martinfowler.com/bliki/StranglerFigApplication.html) Martin Fowler insiste che investimento e ritorno devono avvenire gradualmente e visibilmente, e riporta le quattro attività di Cartwright, Horn e Lewis: capire gli esiti voluti, spezzare il problema, consegnare le parti, cambiare l'organizzazione perché possa continuare.
 
@@ -103,9 +103,9 @@ Passo concluso quando il codice nuovo importa dal vecchio soltanto attraverso l'
 
 ### 6. Solo ora, se serve, gli strumenti tattici del DDD
 
-Aggregati, value object e domain event entrano dove c'è un'invariante da proteggere o un concetto che il codice esprime male. L'insieme dei todo attivi di un proprietario è un aggregato sensato, perché protegge davvero il limite: il [capitolo sulle transazioni](transactions-eventual-consistency.md#aggregati-e-transazioni-non-coincidono-per-definizione) mostra il ragionamento. Un `TodoTitle` che avvolge una stringa senza alcuna regola è solo un tipo in più.
+Aggregati, value object e domain event entrano dove c'è un'invariante da proteggere o un concetto che il codice esprime male. L'insieme dei todo attivi di un proprietario è un aggregato sensato, perché protegge davvero il limite: il [capitolo sulle transazioni](09-transactions-eventual-consistency.md#aggregati-e-transazioni-non-coincidono-per-definizione) mostra il ragionamento. Un `TodoTitle` che avvolge una stringa senza alcuna regola è solo un tipo in più.
 
-Molte parti del sistema resteranno CRUD, ed è corretto così. Il DDD tattico si applica al [sottodominio core](bounded-contexts.md#dominio-sottodominio-e-confine-del-modello), non all'intero repository.
+Molte parti del sistema resteranno CRUD, ed è corretto così. Il DDD tattico si applica al [sottodominio core](06-bounded-contexts.md#dominio-sottodominio-e-confine-del-modello), non all'intero repository.
 
 ## Quando non farlo
 
@@ -129,8 +129,8 @@ Rivedremo la decisione se le zone calde si spostano, se il numero delle eccezion
 
 ---
 
-[Capitolo precedente: I microservizi sono anche una decisione operativa](distributed-systems-cost.md)
+[Capitolo precedente: I microservizi sono anche una decisione operativa](10-distributed-systems-cost.md)
 
-[Capitolo successivo: Il debito tecnico si paga con gli interessi](technical-debt.md)
+[Capitolo successivo: Il debito tecnico si paga con gli interessi](12-technical-debt.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

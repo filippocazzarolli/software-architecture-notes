@@ -8,7 +8,7 @@ Un test del risultato non rileva necessariamente una dipendenza che renderà pi�
 
 ## Il problema: le regole esistono soltanto nelle conversazioni
 
-Abbiamo deciso che il [dominio non conosce NestJS](domain-http-error-mapping.md), che i casi d'uso non dipendono dai controller e che i contesti comunicano attraverso [superfici pubbliche](modular-monolith.md). Sono decisioni utili, ma una persona nuova nel team deve ricostruirle leggendo documenti, esempi e commenti nelle revisioni.
+Abbiamo deciso che il [dominio non conosce NestJS](07-domain-http-error-mapping.md), che i casi d'uso non dipendono dai controller e che i contesti comunicano attraverso [superfici pubbliche](02-modular-monolith.md). Sono decisioni utili, ma una persona nuova nel team deve ricostruirle leggendo documenti, esempi e commenti nelle revisioni.
 
 Sotto pressione, una dipendenza comoda sembra un'eccezione innocua. Dopo qualche mese altri file la copiano. La revisione architetturale diventa una discussione ripetitiva sugli stessi import, spesso quando il lavoro è già finito.
 
@@ -109,7 +109,7 @@ La regola sui contesti copre qui soltanto Account e Todo: quando aggiungiamo Rep
 
 La regola sul dominio è restrittiva per costruzione: segnala anche i moduli integrati di Node, come `node:crypto`, e un file `*.spec.ts` dentro `domain/` che importa il framework di test. Nella prova sono stati segnalati entrambi. Se i test stanno accanto al codice, li escludiamo con `pathNot: "\\.spec\\.ts$"` nella parte `from` della regola, invece di aprire il dominio a tutte le librerie.
 
-![La CI risolve gli import, applica regole sulle dipendenze e segnala origine, destinazione e nome della regola violata. I test di comportamento restano distinti.](../diagrams/architecture-boundary-tests/dependency-check.svg)
+![La CI risolve gli import, applica regole sulle dipendenze e segnala origine, destinazione e nome della regola violata. I test di comportamento restano distinti.](../diagrams/08-architecture-boundary-tests/dependency-check.svg)
 
 *Figura 1 — Un errore utile indica la dipendenza da rimuovere e la decisione che protegge.*
 
@@ -185,7 +185,7 @@ Nel codice reale, una prova semplice consiste nell'introdurre temporaneamente un
 
 Un `public.ts` può riesportare un repository interno. Gli altri moduli passano dal percorso consentito ma ricevono comunque dettagli privati. Il controllo degli archi diretti non valuta la qualità di quel contratto: servono revisione degli export o regole dedicate alle dichiarazioni pubbliche. Anche una dipendenza da `common/` può reintrodurre accoppiamento nascosto.
 
-Gli import costruiti dinamicamente non sono sempre determinabili staticamente. Query SQL, permessi del database e chiamate HTTP verso altri servizi possono attraversare un confine senza produrre un import vietato. Per questi casi servono verifiche di integrazione e regole operative, come discusso nel [capitolo sui bounded context](bounded-contexts.md).
+Gli import costruiti dinamicamente non sono sempre determinabili staticamente. Query SQL, permessi del database e chiamate HTTP verso altri servizi possono attraversare un confine senza produrre un import vietato. Per questi casi servono verifiche di integrazione e regole operative, come discusso nel [capitolo sui bounded context](06-bounded-contexts.md).
 
 Infine, un grafo aciclico non garantisce il limite dei tre todo attivi. Quel comportamento richiede test della regola e prove concorrenti sul database. Il controllo architetturale risponde a una domanda diversa e si aggiunge agli altri test.
 
@@ -205,8 +205,8 @@ La misura del successo è pratica: una scorciatoia che viola una decisione viene
 
 ---
 
-[Capitolo precedente: Il dominio non dovrebbe conoscere HTTP](domain-http-error-mapping.md)
+[Capitolo precedente: Il dominio non dovrebbe conoscere HTTP](07-domain-http-error-mapping.md)
 
-[Capitolo successivo: Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md)
+[Capitolo successivo: Dove dovrebbe finire una transazione?](09-transactions-eventual-consistency.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

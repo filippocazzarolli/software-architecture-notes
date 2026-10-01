@@ -2,7 +2,7 @@
 
 L'utente completa un todo e riceve una conferma. Il database contiene la modifica, ma il sistema di report non la riceve: il processo si è arrestato un istante prima di inviare il messaggio. Riavviare l'applicazione non basta, perché nessuno ha registrato che quel messaggio doveva ancora partire.
 
-Nel [capitolo precedente](domain-vs-integration-events.md) abbiamo definito il contratto `todo.completed.v1`. Ora dobbiamo rendere affidabile il passaggio dal salvataggio alla comunicazione esterna.
+Nel [capitolo precedente](04-domain-vs-integration-events.md) abbiamo definito il contratto `todo.completed.v1`. Ora dobbiamo rendere affidabile il passaggio dal salvataggio alla comunicazione esterna.
 
 **Come colleghiamo una transazione del database a un sistema di messaggistica affidabile?**
 
@@ -37,7 +37,7 @@ Occorre quindi conservare il lavoro da consegnare. Il [Transactional Outbox desc
 
 Il processo può interrogare periodicamente la tabella ([polling publisher](https://microservices.io/patterns/data/polling-publisher.html)) oppure leggere il log delle transazioni di PostgreSQL con uno strumento di change data capture come Debezium ([transaction log tailing](https://microservices.io/patterns/data/transaction-log-tailing.html)). La seconda strada elimina il polling, ma aggiunge infrastruttura da gestire: uno slot di replica logica fermo impedisce la rimozione del WAL e consuma spazio su disco, come avverte la [documentazione PostgreSQL](https://www.postgresql.org/docs/18/logicaldecoding-explanation.html). Partirei dal polling e valuterei la CDC quando latenza o volume lo giustificano.
 
-![Todo e messaggio vengono salvati nella stessa transazione PostgreSQL. Dopo il commit, un worker pubblica sul broker; Report gestisce le consegne duplicate.](../diagrams/outbox-pattern/atomic-write.svg)
+![Todo e messaggio vengono salvati nella stessa transazione PostgreSQL. Dopo il commit, un worker pubblica sul broker; Report gestisce le consegne duplicate.](../diagrams/05-outbox-pattern/atomic-write.svg)
 
 *Figura 1 — L'atomicità termina nel database. I passaggi successivi richiedono conferme e nuovi tentativi.*
 
@@ -67,7 +67,7 @@ await db.transaction(async (tx) => {
 
 `toIntegrationEvent` è il mapping del capitolo precedente. L'identificativo viene conservato con il payload e rimane uguale a ogni tentativo di pubblicazione. Una nuova transizione dopo una riapertura genera invece un altro `eventId`.
 
-Il lock sul todo coordina qui i completamenti concorrenti dello stesso oggetto. Creazione e riapertura devono continuare a proteggere il limite dei tre attivi con il protocollo per utente del [monolite modulare](modular-monolith.md). Aggiungere l'outbox non sostituisce quel controllo.
+Il lock sul todo coordina qui i completamenti concorrenti dello stesso oggetto. Creazione e riapertura devono continuare a proteggere il limite dei tre attivi con il protocollo per utente del [monolite modulare](02-modular-monolith.md). Aggiungere l'outbox non sostituisce quel controllo.
 
 Se l'inserimento nell'outbox fallisce, fallisce anche il salvataggio del todo. Se il commit riesce e il processo muore subito dopo, il messaggio resta disponibile per il worker.
 
@@ -107,7 +107,7 @@ Tenere lock e transazioni aperti durante chiamate al broker semplifica alcuni pa
 
 Per il conteggio dei completamenti l'ordine di arrivo non cambia il risultato: usiamo l'istante del fatto e deduplichiamo. Una proiezione dello stato corrente avrebbe invece bisogno di distinguere completamento e riapertura fuori ordine, per esempio attraverso una versione per todo e una strategia per recuperare eventuali buchi. Un timestamp da solo non stabilisce necessariamente quell'ordine. Nemmeno l'id di sequenza dell'outbox coincide con l'ordine di commit: una transazione con id minore può confermare dopo una con id maggiore, e un cursore «dopo l'ultimo id letto» salterebbe quel messaggio. Per questo il worker seleziona i messaggi ancora pendenti invece di ricordare una posizione.
 
-L'outbox richiede inoltre una gestione quotidiana, simile a quella di ogni coda ([Quando il guasto attraversa una coda](distributed-systems-cost.md#quando-il-guasto-attraversa-una-coda)):
+L'outbox richiede inoltre una gestione quotidiana, simile a quella di ogni coda ([Quando il guasto attraversa una coda](10-distributed-systems-cost.md#quando-il-guasto-attraversa-una-coda)):
 
 - Nuovi tentativi distanziati, con attesa crescente e una componente casuale, per non sovraccaricare un broker in difficoltà.
 - Una quarantena ispezionabile per messaggi che falliscono ripetutamente, conservando il payload per la correzione e il reinvio.
@@ -118,7 +118,7 @@ La durata della deduplicazione in Report deve coprire anche i reinvii ammessi. E
 
 ## I compromessi e la decisione
 
-Otteniamo una registrazione durevole senza rendere il completamento dipendente dalla disponibilità immediata del broker. Paghiamo con una tabella, un worker, ritardi visibili, deduplicazione e procedure operative. La consegna richiede che infrastruttura e processi di recupero tornino a funzionare: l'outbox non garantisce un tempo massimo da sola. Il ritardo di consegna è un confine di consistenza: se ne parla in [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md).
+Otteniamo una registrazione durevole senza rendere il completamento dipendente dalla disponibilità immediata del broker. Paghiamo con una tabella, un worker, ritardi visibili, deduplicazione e procedure operative. La consegna richiede che infrastruttura e processi di recupero tornino a funzionare: l'outbox non garantisce un tempo massimo da sola. Il ritardo di consegna è un confine di consistenza: se ne parla in [Dove dovrebbe finire una transazione?](09-transactions-eventual-consistency.md).
 
 Per Todo scegliamo l'outbox perché perdere completamenti viola il requisito del report. Manteniamo un solo worker iniziale, misuriamo il ritardo e aumentiamo il parallelismo soltanto quando necessario. Non la introdurrei per una semplice lettura, per effetti locali già coperti dalla stessa transazione o quando perdere un messaggio è accettabile e il consumatore può riconciliarsi leggendo direttamente la fonte.
 
@@ -126,8 +126,8 @@ Verifichiamo tre guasti: rollback della scrittura, arresto dopo il commit e arre
 
 ---
 
-[Capitolo precedente: Gli eventi di dominio non sono eventi di integrazione](domain-vs-integration-events.md)
+[Capitolo precedente: Gli eventi di dominio non sono eventi di integrazione](04-domain-vs-integration-events.md)
 
-[Capitolo successivo: I bounded context sono più di semplici cartelle](bounded-contexts.md)
+[Capitolo successivo: I bounded context sono più di semplici cartelle](06-bounded-contexts.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

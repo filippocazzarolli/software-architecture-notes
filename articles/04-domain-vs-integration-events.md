@@ -10,7 +10,7 @@ Qualche settimana dopo cambiamo il modello interno. Un campo viene rinominato e 
 
 Nella nostra applicazione, Todo governa creazione, completamento e riapertura. Il limite resta di tre attività attive per utente. Completarne una libera un posto attraverso l'aggiornamento dello stato, nella transazione del modulo: questo comportamento non deve aspettare un consumatore di eventi.
 
-Aggiungiamo un requisito: un sistema di report, mantenuto separatamente, deve contare i completamenti per utente e giorno. Il cliente accetta un aggiornamento ritardato ([consistenza eventuale](transactions-eventual-consistency.md)), ma non la perdita definitiva dei completamenti.
+Aggiungiamo un requisito: un sistema di report, mantenuto separatamente, deve contare i completamenti per utente e giorno. Il cliente accetta un aggiornamento ritardato ([consistenza eventuale](09-transactions-eventual-consistency.md)), ma non la perdita definitiva dei completamenti.
 
 Chiariamo anche cosa contare. Completare, riaprire e completare di nuovo la stessa attività produce due completamenti. Ripetere la richiesta su un todo già completato non ne produce un terzo. Il report misura queste transizioni, non il numero di attività attualmente completate.
 
@@ -18,7 +18,7 @@ Todo e Report hanno quindi responsabilità diverse. Il primo decide se la transi
 
 ## La soluzione più semplice viene prima degli eventi
 
-Se servisse soltanto mostrare le attività attualmente completate, partirei da una query esposta da Todo, come nel [capitolo su CQRS](cqrs-overkill.md). Se una seconda operazione appartenesse allo stesso caso d'uso, una chiamata esplicita potrebbe mantenere il flusso più leggibile di un insieme di handler.
+Se servisse soltanto mostrare le attività attualmente completate, partirei da una query esposta da Todo, come nel [capitolo su CQRS](03-cqrs-overkill.md). Se una seconda operazione appartenesse allo stesso caso d'uso, una chiamata esplicita potrebbe mantenere il flusso più leggibile di un insieme di handler.
 
 Nel nuovo scenario, però, lo stato corrente non basta a ricostruire tutti i completamenti dopo le riaperture. Occorre conservare quei fatti. Un registro consultabile attraverso un'API sarebbe un'opzione; scegliamo di comunicarli tramite eventi perché Report deve ricevere aggiornamenti progressivi senza partecipare al completamento dell'attività.
 
@@ -37,7 +37,7 @@ Un **evento di integrazione** comunica un fatto confermato oltre il confine del 
 | Evoluzione | Coordinata con il codice del contesto | Compatibile con consumatori che evolvono separatamente |
 | Responsabilità | Esprimere ciò che è accaduto nel dominio | Comunicare ciò che il produttore si impegna a rendere disponibile |
 
-Il confine non coincide necessariamente con un processo: due [bounded context](bounded-contexts.md) possono convivere nel [monolite modulare](modular-monolith.md). Nell'esempio Report è separato, ma anche nello stesso deployment avrebbe senso proteggere il contratto dai dettagli interni di Todo.
+Il confine non coincide necessariamente con un processo: due [bounded context](06-bounded-contexts.md) possono convivere nel [monolite modulare](02-modular-monolith.md). Nell'esempio Report è separato, ma anche nello stesso deployment avrebbe senso proteggere il contratto dai dettagli interni di Todo.
 
 ## Un esempio: tradurre, non serializzare il modello
 
@@ -91,19 +91,19 @@ export function toIntegrationEvent(
 
 Il codice mostra solo il mapping. Il contratto specifica che `occurredAt` è l'istante del completamento in formato ISO 8601 UTC; Report concorda separatamente il fuso con cui raggruppare i giorni. Titolo, email e stato completo dell'utente non servono al report e non entrano nel messaggio.
 
-Il tipo sta in `todo/public.ts` perché gli altri contesti possono importare soltanto da lì, secondo le regole verificate dai [test di architettura](architecture-boundary-tests.md). Per un Report realmente separato, la fonte di verità è uno schema del messaggio (per esempio JSON Schema o AsyncAPI) da cui generare i tipi dei due lati, non un file TypeScript di Todo.
+Il tipo sta in `todo/public.ts` perché gli altri contesti possono importare soltanto da lì, secondo le regole verificate dai [test di architettura](08-architecture-boundary-tests.md). Per un Report realmente separato, la fonte di verità è uno schema del messaggio (per esempio JSON Schema o AsyncAPI) da cui generare i tipi dei due lati, non un file TypeScript di Todo.
 
 Quanti dati includere è una scelta di accoppiamento. Un evento con soli identificativi costringe il consumatore a richiamare il produttore se in seguito gli servisse il titolo: è una dipendenza a runtime. Un evento più ricco evita la chiamata, ma allarga il contratto e ne rende più costose le modifiche: è una dipendenza di contratto. Qui bastano gli identificativi, perché Report si limita a contare.
 
 `eventId` identifica quella singola occorrenza: viene assegnato una volta e conservato nel messaggio persistito, riusandolo nei tentativi di consegna. Non coincide con `todoId`, perché la stessa attività può essere completata più volte. Report lo usa per riconoscere una consegna ripetuta senza aumentare nuovamente il conteggio.
 
-![Nel contesto Todo, un evento di dominio viene tradotto dal livello applicativo in un contratto pubblico. Report riceve l'evento di integrazione solo dopo la conferma della transazione.](../diagrams/domain-vs-integration-events/translation.svg)
+![Nel contesto Todo, un evento di dominio viene tradotto dal livello applicativo in un contratto pubblico. Report riceve l'evento di integrazione solo dopo la conferma della transazione.](../diagrams/04-domain-vs-integration-events/translation.svg)
 
 *Figura 1 — La traduzione appartiene al produttore. Il consumatore dipende dal contratto pubblico.*
 
 Non serve una corrispondenza uno a uno per tutti gli eventi. Todo potrebbe produrre fatti interni che nessun altro deve conoscere. Inoltre, un caso d'uso può costruire un evento di integrazione senza introdurre prima un meccanismo generico di eventi di dominio, se quel passaggio non aggiunge valore.
 
-Un consumatore interno mostra la differenza. Se Todo mantiene una tabella di riepilogo per la lista, come nel [capitolo su CQRS](cqrs-overkill.md), un handler dello stesso modulo può reagire a `TodoCompleted` e aggiornarla nella stessa transazione, purché usi quel contesto transazionale, come precisato più avanti. Il destinatario evolve insieme al codice di Todo: basta l'evento di dominio, senza contratto pubblico, versioni o consegna esterna.
+Un consumatore interno mostra la differenza. Se Todo mantiene una tabella di riepilogo per la lista, come nel [capitolo su CQRS](03-cqrs-overkill.md), un handler dello stesso modulo può reagire a `TodoCompleted` e aggiornarla nella stessa transazione, purché usi quel contesto transazionale, come precisato più avanti. Il destinatario evolve insieme al codice di Todo: basta l'evento di dominio, senza contratto pubblico, versioni o consegna esterna.
 
 ## Produrre un evento non significa averlo pubblicato
 
@@ -111,7 +111,7 @@ Il modello può descrivere la transizione in memoria prima che il database confe
 
 Separiamo quindi la produzione del fatto dalla sua gestione. Questa distinzione è illustrata anche da [Jimmy Bogard nel suo approccio agli eventi di dominio](https://lostechies.com/jimmybogard/2014/05/13/a-better-domain-events-pattern/). Eventuali handler interni possono partecipare alla stessa transazione, se usano effettivamente quel contesto transazionale; essere chiamati nello stesso processo non basta. Effetti esterni, come inviare un messaggio o un'email, non vengono annullati da un rollback del database.
 
-Per Report prepariamo il contratto e registriamo il messaggio da consegnare nella stessa transazione che salva il todo. La consegna esterna avviene dopo il commit. Questa registrazione durevole è il punto di partenza dell'[Outbox Pattern, approfondito nel prossimo capitolo](outbox-pattern.md).
+Per Report prepariamo il contratto e registriamo il messaggio da consegnare nella stessa transazione che salva il todo. La consegna esterna avviene dopo il commit. Questa registrazione durevole è il punto di partenza dell'[Outbox Pattern, approfondito nel prossimo capitolo](05-outbox-pattern.md).
 
 Limitarsi a chiamare `publish` dopo il salvataggio lascia un intervallo in cui il processo può arrestarsi e perdere la comunicazione. Pubblicare prima rischia invece di annunciare una modifica poi annullata. Il mapping corretto protegge il modello, ma l'affidabilità richiede una soluzione distinta.
 
@@ -121,7 +121,7 @@ Supponiamo di rinominare `ownerId` nel modello interno. Il traduttore può conti
 
 Se invece decidiamo che l'evento indica solo il primo completamento di un'attività, abbiamo cambiato il significato del contratto anche mantenendo identico il JSON. Per il nostro report il conteggio diventerebbe diverso: serve un nuovo accordo, con una versione o un tipo distinto e una migrazione dei consumatori.
 
-Aggiungere un campo opzionale può essere compatibile se i lettori tollerano campi sconosciuti; rinominare un campo obbligatorio normalmente non lo è. Il suffisso `v1` rende riconoscibile la versione, ma non sostituisce queste decisioni. La convivenza tra versioni durante i rilasci è trattata nel capitolo sui [costi operativi](distributed-systems-cost.md#i-rilasci-indipendenti-richiedono-compatibilità).
+Aggiungere un campo opzionale può essere compatibile se i lettori tollerano campi sconosciuti; rinominare un campo obbligatorio normalmente non lo è. Il suffisso `v1` rende riconoscibile la versione, ma non sostituisce queste decisioni. La convivenza tra versioni durante i rilasci è trattata nel capitolo sui [costi operativi](10-distributed-systems-cost.md#i-rilasci-indipendenti-richiedono-compatibilità).
 
 Oltre allo schema, terrei esempi di messaggi e test di contratto scritti dal consumatore (per esempio con Pact) per controllare formato, campi e significato atteso. Verificherei inoltre che due consegne dello stesso `eventId` non duplicano il conteggio, mentre due completamenti distinti dello stesso todo lo incrementano due volte.
 
@@ -135,8 +135,8 @@ Introdurrei altri eventi solo per fatti con destinatari e requisiti concreti. Pe
 
 ---
 
-[Capitolo precedente: Quando CQRS è eccessivo](cqrs-overkill.md)
+[Capitolo precedente: Quando CQRS è eccessivo](03-cqrs-overkill.md)
 
-[Capitolo successivo: Perché salvare dati e pubblicare un evento è difficile](outbox-pattern.md)
+[Capitolo successivo: Perché salvare dati e pubblicare un evento è difficile](05-outbox-pattern.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

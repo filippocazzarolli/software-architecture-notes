@@ -25,7 +25,7 @@ export function assertCanActivate(activeCount: number): void {
 }
 ```
 
-La dipendenza non diventa innocua perché il test passa. Il modello ha bisogno di un framework di trasporto per esprimere una decisione propria. Questo tipo di import si può bloccare automaticamente: il [capitolo sui test architetturali](architecture-boundary-tests.md) include una regola che rifiuta `@nestjs/common` nel dominio.
+La dipendenza non diventa innocua perché il test passa. Il modello ha bisogno di un framework di trasporto per esprimere una decisione propria. Questo tipo di import si può bloccare automaticamente: il [capitolo sui test architetturali](08-architecture-boundary-tests.md) include una regola che rifiuta `@nestjs/common` nel dominio.
 
 ## La soluzione più semplice: un errore significativo
 
@@ -49,7 +49,7 @@ export function assertCanActivate(activeCount: number): void {
 }
 ```
 
-Il numero proviene da un conteggio autorevole, letto dal caso d'uso nella transazione che protegge la modifica. La funzione valuta la regola; non rende sicuro un conteggio obsoleto. Il protocollo di concorrenza rimane quello del [capitolo sul monolite modulare](modular-monolith.md).
+Il numero proviene da un conteggio autorevole, letto dal caso d'uso nella transazione che protegge la modifica. La funzione valuta la regola; non rende sicuro un conteggio obsoleto. Il protocollo di concorrenza rimane quello del [capitolo sul monolite modulare](02-modular-monolith.md).
 
 Non esponiamo direttamente `error.message` al client. Il messaggio interno aiuta lo sviluppatore; il contratto pubblico richiede un codice stabile e un testo scelto per chi usa l'API. Una modifica alla formulazione interna non dovrebbe rompere il frontend.
 
@@ -84,7 +84,7 @@ Il filtro va associato al controller Todo, per esempio con `@UseFilters(TodoLimi
 
 Il codice intercetta solo il rifiuto atteso. Gli altri errori continuano nel percorso generale di gestione: un database irraggiungibile non deve diventare un falso «limite raggiunto». Un gestore degli errori inattesi registra dettagli diagnostici internamente e restituisce una risposta generica, senza esporre query o stack trace.
 
-![Il caso d'uso incontra TodoLimitExceeded e l'adattatore lo traduce per il proprio canale: HTTP, CLI oppure coda. Il dominio non dipende da queste traduzioni.](../diagrams/domain-http-error-mapping/error-adapters.svg)
+![Il caso d'uso incontra TodoLimitExceeded e l'adattatore lo traduce per il proprio canale: HTTP, CLI oppure coda. Il dominio non dipende da queste traduzioni.](../diagrams/07-domain-http-error-mapping/error-adapters.svg)
 
 *Figura 1 — Lo stesso significato può richiedere risposte diverse ai diversi punti d'ingresso.*
 
@@ -110,7 +110,7 @@ La CLI può intercettare `TodoLimitExceeded`, spiegare il rifiuto e usare un cod
 
 Un consumer richiede più attenzione. Se un comando di creazione trova tre todo attivi, ripeterlo subito cento volte non risolve il problema. Nel nostro scenario registriamo durevolmente l'esito di business e confermiamo la ricezione; sarà una nuova richiesta dell'utente a tentare ancora. Se il prodotto volesse invece accodare attività fino alla disponibilità di un posto, servirebbero un nuovo stato e una politica esplicita di attesa.
 
-Un errore temporaneo di connessione può giustificare nuovi tentativi, mantenendo l'identificativo dell'operazione e gli opportuni limiti. Non basta distinguere classi di eccezioni: bisogna conoscere la semantica del comando e se ripeterlo possa duplicarne gli effetti. Il [capitolo sull'outbox](outbox-pattern.md) affronta il caso della consegna ripetuta di eventi.
+Un errore temporaneo di connessione può giustificare nuovi tentativi, mantenendo l'identificativo dell'operazione e gli opportuni limiti. Non basta distinguere classi di eccezioni: bisogna conoscere la semantica del comando e se ripeterlo possa duplicarne gli effetti. Il [capitolo sull'outbox](05-outbox-pattern.md) affronta il caso della consegna ripetuta di eventi.
 
 L'errore TypeScript viaggia come oggetto soltanto dentro il processo. Su una rete o una coda si invia un contratto serializzato; `instanceof TodoLimitExceeded` non riconosce automaticamente un JSON ricevuto da un altro servizio.
 
@@ -140,8 +140,8 @@ Manteniamo nel dominio il significato dell'errore e nei punti d'ingresso la risp
 
 ---
 
-[Capitolo precedente: I bounded context sono più di semplici cartelle](bounded-contexts.md)
+[Capitolo precedente: I bounded context sono più di semplici cartelle](06-bounded-contexts.md)
 
-[Capitolo successivo: Testare l'architettura, oltre alla logica di business](architecture-boundary-tests.md)
+[Capitolo successivo: Testare l'architettura, oltre alla logica di business](08-architecture-boundary-tests.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

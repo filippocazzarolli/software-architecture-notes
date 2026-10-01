@@ -20,7 +20,7 @@ Il team, invece, riesce ancora a rilasciare insieme. Non ci sono carichi che ric
 
 Un monolite modulare mantiene un'unica applicazione distribuibile, ma organizza il codice in moduli con responsabilità e interfacce definite. Nell'esempio, Account e Todo rimangono nello stesso processo e condividono un database PostgreSQL.
 
-![Confronto tra un monolite accoppiato, con accessi incrociati alle tabelle, e un monolite modulare, con un'interfaccia pubblica e dati assegnati ai rispettivi moduli.](../diagrams/modular-monolith/boundaries.svg)
+![Confronto tra un monolite accoppiato, con accessi incrociati alle tabelle, e un monolite modulare, con un'interfaccia pubblica e dati assegnati ai rispettivi moduli.](../diagrams/02-modular-monolith/boundaries.svg)
 
 *Figura 1 — Il deployment resta unico. Cambiano le dipendenze consentite e la proprietà dei dati.*
 
@@ -32,7 +32,7 @@ Questo confine consente, per esempio, di riorganizzare la persistenza degli acco
 
 ### Le cartelle non bastano
 
-Spostare i file in `account/` e `todo/` aiuta a orientarsi, ma non impedisce a Todo di importare `account/internal/repository`. Il confine deve essere verificabile: un punto d'ingresso pubblico per modulo, regole sugli import eseguite in CI e controlli che impediscano dipendenze circolari ([Testare l'architettura, oltre alla logica di business](architecture-boundary-tests.md) mostra come scriverli).
+Spostare i file in `account/` e `todo/` aiuta a orientarsi, ma non impedisce a Todo di importare `account/internal/repository`. Il confine deve essere verificabile: un punto d'ingresso pubblico per modulo, regole sugli import eseguite in CI e controlli che impediscano dipendenze circolari ([Testare l'architettura, oltre alla logica di business](08-architecture-boundary-tests.md) mostra come scriverli).
 
 Vale anche con NestJS: `exports` in `@Module` limita ciò che si può iniettare, non ciò che un file può importare. È una barriera di dependency injection, non di dipendenze nel codice.
 
@@ -60,11 +60,11 @@ Sono contratti illustrativi: autenticazione, autorizzazione e gestione degli err
 
 Il caso d'uso di creazione riceve un'implementazione di `AccountApi`, verifica l'esistenza dell'utente e affida al modulo Todo il rispetto del limite. Non riceve il repository di Account né una sua entità ORM.
 
-![Una sola applicazione contiene i moduli Account e Todo. Todo consulta l'interfaccia AccountApi; ogni modulo accede ai propri dati nello stesso PostgreSQL. La regola dei tre todo attivi e la relativa transazione appartengono a Todo.](../diagrams/modular-monolith/account-todo.svg)
+![Una sola applicazione contiene i moduli Account e Todo. Todo consulta l'interfaccia AccountApi; ogni modulo accede ai propri dati nello stesso PostgreSQL. La regola dei tre todo attivi e la relativa transazione appartengono a Todo.](../diagrams/02-modular-monolith/account-todo.svg)
 
 *Figura 2 — Le frecce indicano chiamate o accessi ai dati. Il limite sui todo rimane nel modulo che possiede il loro ciclo di vita.*
 
-Il controllo di esistenza è una lettura puntuale: non garantisce che l'account non venga cancellato subito dopo. Se il prodotto prevede la cancellazione degli utenti, bisogna definirne il coordinamento con Todo, tema del capitolo [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md). Un eventuale vincolo referenziale tra moduli è una scelta esplicita di accoppiamento nello schema, da valutare insieme alle esigenze di integrità.
+Il controllo di esistenza è una lettura puntuale: non garantisce che l'account non venga cancellato subito dopo. Se il prodotto prevede la cancellazione degli utenti, bisogna definirne il coordinamento con Todo, tema del capitolo [Dove dovrebbe finire una transazione?](09-transactions-eventual-consistency.md). Un eventuale vincolo referenziale tra moduli è una scelta esplicita di accoppiamento nello schema, da valutare insieme alle esigenze di integrità.
 
 ### E le letture che attraversano i moduli?
 
@@ -91,13 +91,13 @@ Una possibile implementazione mantiene in `todo.user_state` una riga stabile per
 
 Il lock dura fino alla fine della transazione e fa attendere le altre operazioni che acquisiscono lo stesso lock. Tutti i percorsi che possono aumentare il conteggio devono rispettare questo protocollo, anche quando l'applicazione gira su più repliche. Bloccare soltanto i todo attivi esistenti protegge finché ne esiste almeno uno; con zero attivi non c'è nulla da bloccare e più richieste concorrenti possono superare il limite: nella prova, quattro richieste partite da zero attivi ne hanno creati quattro. Non è quindi un punto di coordinamento stabile. Il comportamento dei lock è descritto nella [documentazione PostgreSQL sui lock di riga](https://www.postgresql.org/docs/18/explicit-locking.html#LOCKING-ROWS).
 
-La riga di coordinamento appartiene a Todo: non serve usare la tabella degli account per proteggere una regola di un altro modulo. Il prezzo è serializzare queste operazioni per lo stesso utente. Per verificarne il comportamento, un test d'integrazione significativo parte da due todo attivi e tenta due creazioni concorrenti: una sola deve riuscire. Ho misurato questi casi su PostgreSQL 18.0 nel capitolo [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md).
+La riga di coordinamento appartiene a Todo: non serve usare la tabella degli account per proteggere una regola di un altro modulo. Il prezzo è serializzare queste operazioni per lo stesso utente. Per verificarne il comportamento, un test d'integrazione significativo parte da due todo attivi e tenta due creazioni concorrenti: una sola deve riuscire. Ho misurato questi casi su PostgreSQL 18.0 nel capitolo [Dove dovrebbe finire una transazione?](09-transactions-eventual-consistency.md).
 
 ## Quando il monolite modulare aiuta
 
 Questa soluzione è adatta quando le funzionalità hanno responsabilità distinguibili, ma il team trae ancora vantaggio da un rilascio comune. Consente di lavorare su una parte del sistema attraverso contratti stabili, mantenendo semplici avvio locale, comunicazione e gestione operativa.
 
-Può ospitare più *bounded context*, perché un confine di modello non impone un confine di deployment. Non ogni modulo, però, è un bounded context: alcuni servono soltanto a organizzare il codice all'interno dello stesso modello. Il capitolo [I bounded context sono più di semplici cartelle](bounded-contexts.md) approfondisce la distinzione.
+Può ospitare più *bounded context*, perché un confine di modello non impone un confine di deployment. Non ogni modulo, però, è un bounded context: alcuni servono soltanto a organizzare il codice all'interno dello stesso modello. Il capitolo [I bounded context sono più di semplici cartelle](06-bounded-contexts.md) approfondisce la distinzione.
 
 Il criterio pratico è la capacità di cambiare un'implementazione senza costringere gli altri moduli a conoscerne i dettagli. Se ogni modifica richiede di aggiornare molti contratti, occorre rivedere i confini o le responsabilità.
 
@@ -105,7 +105,7 @@ Il criterio pratico è la capacità di cambiare un'implementazione senza costrin
 
 Una piccola applicazione CRUD può funzionare bene con pochi componenti chiari. Creare un modulo per ogni tabella, introdurre interfacce senza un confine da proteggere o aggiungere livelli che si limitano a inoltrare chiamate aumenta il costo di lettura e modifica.
 
-Anche broker, bus di eventi generici e database separati richiedono una motivazione propria. Una chiamata diretta tra moduli è spesso sufficiente. Se si introduce comunicazione asincrona, bisogna accettare e gestire ritardi, errori e consistenza dei dati: la modularità, da sola, non la richiede. I capitoli sugli [eventi di dominio e di integrazione](domain-vs-integration-events.md) e sul [pattern outbox](outbox-pattern.md) ne mostrano contratti e insidie.
+Anche broker, bus di eventi generici e database separati richiedono una motivazione propria. Una chiamata diretta tra moduli è spesso sufficiente. Se si introduce comunicazione asincrona, bisogna accettare e gestire ritardi, errori e consistenza dei dati: la modularità, da sola, non la richiede. I capitoli sugli [eventi di dominio e di integrazione](04-domain-vs-integration-events.md) e sul [pattern outbox](05-outbox-pattern.md) ne mostrano contratti e insidie.
 
 Conviene iniziare dai punti in cui le modifiche si propagano davvero e rendere quei confini più solidi. Non serve anticipare l'infrastruttura di un sistema distribuito per prepararsi a un'estrazione che potrebbe non avvenire.
 
@@ -133,14 +133,14 @@ Rivedremo la decisione in presenza di esigenze concrete:
 - Un requisito di disponibilità richiede che il guasto di una funzionalità non coinvolga le altre.
 - La responsabilità di una capacità passa a un team che necessita anche di autonomia operativa.
 
-Questi segnali giustificano una valutazione, non rendono automatica l'estrazione. Separare un servizio introduce chiamate di rete che possono fallire, contratti da far evolvere tra versioni diverse, coordinamento dei dati e nuovi componenti da monitorare. Confini già chiari aiutano, ma l'estrazione richiede comunque lavoro: [I microservizi sono anche una decisione operativa](distributed-systems-cost.md) ne elenca i costi.
+Questi segnali giustificano una valutazione, non rendono automatica l'estrazione. Separare un servizio introduce chiamate di rete che possono fallire, contratti da far evolvere tra versioni diverse, coordinamento dei dati e nuovi componenti da monitorare. Confini già chiari aiutano, ma l'estrazione richiede comunque lavoro: [I microservizi sono anche una decisione operativa](10-distributed-systems-cost.md) ne elenca i costi.
 
 **Confini solidi non richiedono servizi separati.** Un monolite modulare può essere una soluzione duratura: scegliamo il deployment in base ai vincoli reali dell'applicazione e cambiamolo quando il beneficio atteso giustifica il costo.
 
 ---
 
-[Capitolo precedente: Prima dell'architettura: capire il problema di business](business-before-architecture.md)
+[Capitolo precedente: Prima dell'architettura: capire il problema di business](01-business-before-architecture.md)
 
-[Capitolo successivo: Quando CQRS è eccessivo](cqrs-overkill.md)
+[Capitolo successivo: Quando CQRS è eccessivo](03-cqrs-overkill.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

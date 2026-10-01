@@ -25,7 +25,7 @@ Il limite non tollera un quarto todo «per qualche secondo». Il report può inv
 
 ## La soluzione più semplice: una transazione locale breve
 
-Manteniamo nel modulo Todo le operazioni che proteggono il limite. Con PostgreSQL e isolamento `READ COMMITTED`, il protocollo già introdotto nel [monolite modulare](modular-monolith.md) blocca una riga stabile per utente, poi conta gli attivi con un comando successivo e decide se modificarli.
+Manteniamo nel modulo Todo le operazioni che proteggono il limite. Con PostgreSQL e isolamento `READ COMMITTED`, il protocollo già introdotto nel [monolite modulare](02-modular-monolith.md) blocca una riga stabile per utente, poi conta gli attivi con un comando successivo e decide se modificarli.
 
 ```ts
 // Pseudocodice: tutti i repository usano la stessa transazione.
@@ -72,15 +72,15 @@ Una transazione su più aggregati nello stesso database è tecnicamente possibil
 
 ## Dopo il commit: una promessa diversa
 
-Quando completiamo un todo, salviamo stato e messaggio nell'[outbox](outbox-pattern.md). Il commit conclude la transazione di Todo. Report aggiorna successivamente il proprio database in un'altra transazione.
+Quando completiamo un todo, salviamo stato e messaggio nell'[outbox](05-outbox-pattern.md). Il commit conclude la transazione di Todo. Report aggiorna successivamente il proprio database in un'altra transazione.
 
-![Todo protegge immediatamente il limite e salva i messaggi nell'outbox. La consegna avviene dopo il commit; Report applica il fatto nella propria transazione, con ritardo e deduplicazione.](../diagrams/transactions-eventual-consistency/consistency-boundary.svg)
+![Todo protegge immediatamente il limite e salva i messaggi nell'outbox. La consegna avviene dopo il commit; Report applica il fatto nella propria transazione, con ritardo e deduplicazione.](../diagrams/09-transactions-eventual-consistency/consistency-boundary.svg)
 
 *Figura 1 — La consistenza immediata protegge il comando; l'aggiornamento del report ha tempi e recupero propri.*
 
 Questa consistenza eventuale richiede un percorso concreto verso l'allineamento: consegna recuperabile, effetti idempotenti, rilevazione dei messaggi bloccati e una fonte sufficiente per riconciliare i dati. Non significa che basti aspettare perché ogni problema si risolva.
 
-L'interfaccia può confermare il completamento e indicare che il riepilogo si sta aggiornando, come discusso in [Quando una proiezione asincrona cambia il prodotto](cqrs-overkill.md#quando-una-proiezione-asincrona-cambia-il-prodotto). Se il report supera il ritardo concordato, il sistema deve renderlo osservabile. Una lettura vecchia non può autorizzare una nuova attività: il comando controlla sempre il limite sui dati autorevoli.
+L'interfaccia può confermare il completamento e indicare che il riepilogo si sta aggiornando, come discusso in [Quando una proiezione asincrona cambia il prodotto](03-cqrs-overkill.md#quando-una-proiezione-asincrona-cambia-il-prodotto). Se il report supera il ritardo concordato, il sistema deve renderlo osservabile. Una lettura vecchia non può autorizzare una nuova attività: il comando controlla sempre il limite sui dati autorevoli.
 
 ## Quando il processo attraversa più contesti
 
@@ -111,7 +111,7 @@ Un orchestratore, cioè un *process manager* che conserva lo stato del processo,
 
 ## I compromessi e la decisione
 
-Una transazione locale offre un esito atomico e un recupero semplice tramite rollback, ma lock lunghi aumentano contesa e consumo di connessioni. Un processo distribuito permette autonomia dei partecipanti, ma introduce stati intermedi, messaggi duplicati, compensazioni e diagnosi più difficili. Il [capitolo successivo](distributed-systems-cost.md) ne elenca i costi operativi.
+Una transazione locale offre un esito atomico e un recupero semplice tramite rollback, ma lock lunghi aumentano contesa e consumo di connessioni. Un processo distribuito permette autonomia dei partecipanti, ma introduce stati intermedi, messaggi duplicati, compensazioni e diagnosi più difficili. Il [capitolo successivo](10-distributed-systems-cost.md) ne elenca i costi operativi.
 
 Le transazioni distribuite con *two-phase commit* possono essere valutate quando tutte le risorse supportano il protocollo e il costo di coordinamento è accettabile. PostgreSQL offre [`PREPARE TRANSACTION`](https://www.postgresql.org/docs/18/sql-prepare-transaction.html), ma la sua documentazione la destina a un gestore di transazioni esterno, non al codice applicativo. Non le assumiamo disponibili per broker e fornitori esterni, né trasformiamo una transazione locale utile in una saga senza un'esigenza concreta.
 
@@ -121,8 +121,8 @@ Allargheremo o separeremo il confine solo dopo aver concordato cosa può essere 
 
 ---
 
-[Capitolo precedente: Testare l'architettura, oltre alla logica di business](architecture-boundary-tests.md)
+[Capitolo precedente: Testare l'architettura, oltre alla logica di business](08-architecture-boundary-tests.md)
 
-[Capitolo successivo: I microservizi sono anche una decisione operativa](distributed-systems-cost.md)
+[Capitolo successivo: I microservizi sono anche una decisione operativa](10-distributed-systems-cost.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

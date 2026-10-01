@@ -8,7 +8,7 @@ Il team propone CQRS. Nella discussione compaiono subito due database, un broker
 
 ## Il problema: due esigenze nello stesso modello
 
-Riprendiamo il [monolite modulare del capitolo precedente](modular-monolith.md): un solo team, un'applicazione e PostgreSQL. Il modulo Todo governa creazione, completamento e riapertura; ogni utente può avere al massimo tre todo attivi.
+Riprendiamo il [monolite modulare del capitolo precedente](02-modular-monolith.md): un solo team, un'applicazione e PostgreSQL. Il modulo Todo governa creazione, completamento e riapertura; ogni utente può avere al massimo tre todo attivi.
 
 La scrittura deve decidere se un'operazione è consentita e proteggere il limite anche con richieste concorrenti. La lettura deve restituire pochi dati, ordinati e pronti per la schermata. Non serve ricostruire tutti gli oggetti coinvolti nelle modifiche per mostrare una lista.
 
@@ -38,7 +38,7 @@ Un modello di lettura può essere un DTO costruito da una query, senza una copia
 
 Asincronia e database separati sono ulteriori decisioni. Anche la [documentazione Microsoft su CQRS](https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs) distingue modelli sullo stesso database da modelli su archivi diversi. CQRS non richiede un broker né Event Sourcing, cioè la conservazione dello stato attraverso una sequenza di eventi.
 
-![Due percorsi nello stesso modulo Todo: i comandi attraversano regole e transazioni, le query producono DTO per la schermata. Entrambi accedono alle stesse tabelle PostgreSQL.](../diagrams/cqrs-overkill/shared-database.svg)
+![Due percorsi nello stesso modulo Todo: i comandi attraversano regole e transazioni, le query producono DTO per la schermata. Entrambi accedono alle stesse tabelle PostgreSQL.](../diagrams/03-cqrs-overkill/shared-database.svg)
 
 *Figura 1 — Modelli distinti possono usare gli stessi dati, senza un processo di sincronizzazione.*
 
@@ -65,7 +65,7 @@ export interface TodoQueries {
 
 Sono contratti illustrativi, non implementazioni complete. L'identità deve essere verificata e l'accesso autorizzato in entrambi i percorsi: un parametro `ownerId` non costituisce una protezione.
 
-L'implementazione di `reopen` verifica che il todo appartenga all'utente e ne governa la transizione di stato. Per proteggere il limite conserva il protocollo transazionale descritto nel [capitolo precedente](modular-monolith.md): lock sulla riga di coordinamento dell'utente, verifica dello stato e conteggio, eventuale aggiornamento. Una chiamata a un command handler, da sola, non risolve la concorrenza.
+L'implementazione di `reopen` verifica che il todo appartenga all'utente e ne governa la transizione di stato. Per proteggere il limite conserva il protocollo transazionale descritto nel [capitolo precedente](02-modular-monolith.md): lock sulla riga di coordinamento dell'utente, verifica dello stato e conteggio, eventuale aggiornamento. Una chiamata a un command handler, da sola, non risolve la concorrenza.
 
 `listActive` può eseguire una query sulle tabelle possedute da Todo e costruire il DTO senza caricare il modello di scrittura. In questo esempio la lista contiene tutti i todo attivi, al massimo tre: `activeCount` può essere derivato dalla lunghezza del risultato, evitando un secondo conteggio. Non estendiamo questo ragionamento a una lista paginata, dove lunghezza della pagina e totale sono diversi.
 
@@ -81,13 +81,13 @@ Accade anche il contrario. Dopo una creazione, un conteggio in ritardo può most
 
 Il ritardo richiede una scelta di prodotto: mostrare un aggiornamento in corso, far restituire al comando il nuovo stato del todo per aggiornare temporaneamente la schermata (una deroga pragmatica al CQS, per cui un comando non restituirebbe nulla) oppure attendere che la proiezione raggiunga una versione attesa. Occorre concordare quanto ritardo sia accettabile e cosa mostrare se l'aggiornamento si blocca.
 
-Il team deve inoltre gestire consegne duplicate, ordinamento dove necessario, nuovi tentativi e recupero delle proiezioni. Anche far arrivare l'aggiornamento senza perdite dopo la conferma della transazione è il problema descritto in [Perché salvare dati e pubblicare un evento è difficile](outbox-pattern.md). Se una vista va ricostruita, serve una fonte completa: lo stato corrente può bastare per la lista attiva, ma non per un report storico di tutte le riaperture. Pubblicare alcuni eventi non garantisce di aver conservato quella storia.
+Il team deve inoltre gestire consegne duplicate, ordinamento dove necessario, nuovi tentativi e recupero delle proiezioni. Anche far arrivare l'aggiornamento senza perdite dopo la conferma della transazione è il problema descritto in [Perché salvare dati e pubblicare un evento è difficile](05-outbox-pattern.md). Se una vista va ricostruita, serve una fonte completa: lo stato corrente può bastare per la lista attiva, ma non per un report storico di tutte le riaperture. Pubblicare alcuni eventi non garantisce di aver conservato quella storia.
 
 Sono nuove responsabilità operative e funzionali, difficili da giustificare per evitare una semplice query.
 
 ## Quando il beneficio diventa concreto
 
-Nel nostro esempio manterrei query dirette finché le letture rimangono piccole e misurabilmente adeguate. Valuterei una separazione maggiore se una dashboard dovesse aggregare grandi volumi di attività, se le sue query degradassero le scritture, se le rappresentazioni richieste cambiassero molto più spesso delle regole o se una lettura dovesse combinare dati di più moduli, dove il `JOIN` non è più consentito ([le alternative sono nel capitolo precedente](modular-monolith.md#e-le-letture-che-attraversano-i-moduli)).
+Nel nostro esempio manterrei query dirette finché le letture rimangono piccole e misurabilmente adeguate. Valuterei una separazione maggiore se una dashboard dovesse aggregare grandi volumi di attività, se le sue query degradassero le scritture, se le rappresentazioni richieste cambiassero molto più spesso delle regole o se una lettura dovesse combinare dati di più moduli, dove il `JOIN` non è più consentito ([le alternative sono nel capitolo precedente](02-modular-monolith.md#e-le-letture-che-attraversano-i-moduli)).
 
 Prima misurerei tempi di risposta, piani delle query e carico, valutando indici e query più mirate. Se il problema riguarda soltanto un report, una struttura dedicata a quel report può essere sufficiente; non serve trasformare ogni lettura dell'applicazione. In PostgreSQL il primo gradino è spesso una [vista materializzata](https://www.postgresql.org/docs/18/rules-materializedviews.html) rinfrescata a intervalli, oppure una replica di lettura: niente broker e niente codice di sincronizzazione, con lo stesso prezzo di dati non aggiornati fino al refresh o per il ritardo di replica.
 
@@ -105,8 +105,8 @@ Rivedremo la decisione quando una lettura specifica richiederà una struttura de
 
 ---
 
-[Capitolo precedente: Quando basta un monolite modulare](modular-monolith.md)
+[Capitolo precedente: Quando basta un monolite modulare](02-modular-monolith.md)
 
-[Capitolo successivo: Gli eventi di dominio non sono eventi di integrazione](domain-vs-integration-events.md)
+[Capitolo successivo: Gli eventi di dominio non sono eventi di integrazione](04-domain-vs-integration-events.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

@@ -14,11 +14,11 @@ Estrarre Account aggiungerebbe una dipendenza di rete alla verifica del propriet
 
 Estrarre Report potrebbe invece isolare calcoli pesanti senza aggiungere una chiamata sincrona al completamento. Le due estrazioni non hanno lo stesso valore, anche se sul diagramma producono riquadri simili.
 
-Il punto di partenza è identificare un limite osservato: rilasci che si bloccano fra team, risorse consumate da una capacità specifica o requisiti di isolamento che un unico processo non soddisfa. Sono i segnali elencati nel capitolo sul [monolite modulare](modular-monolith.md#la-decisione-e-i-segnali-per-rivederla).
+Il punto di partenza è identificare un limite osservato: rilasci che si bloccano fra team, risorse consumate da una capacità specifica o requisiti di isolamento che un unico processo non soddisfa. Sono i segnali elencati nel capitolo sul [monolite modulare](02-modular-monolith.md#la-decisione-e-i-segnali-per-rivederla).
 
 ## La soluzione più semplice: migliorare ciò che esiste
 
-Se il problema è l'accoppiamento del codice, partirei dal [monolite modulare](modular-monolith.md) e dai [controlli sulle dipendenze](architecture-boundary-tests.md). Se una query lenta rallenta l'applicazione, misurerei il piano di esecuzione, gli indici e i limiti di concorrenza prima di separare servizi.
+Se il problema è l'accoppiamento del codice, partirei dal [monolite modulare](02-modular-monolith.md) e dai [controlli sulle dipendenze](08-architecture-boundary-tests.md). Se una query lenta rallenta l'applicazione, misurerei il piano di esecuzione, gli indici e i limiti di concorrenza prima di separare servizi.
 
 Se il lavoro pesante è un'elaborazione in background, un worker separato può già offrire risorse e riavvii indipendenti, pur mantenendo repository e rilascio coordinati. In NestJS può essere un'[applicazione standalone](https://docs.nestjs.com/standalone-applications), creata con `NestFactory.createApplicationContext`, che riusa gli stessi moduli con un altro punto d'ingresso; senza listener di rete, middleware, interceptor, pipe e guard non sono disponibili. Non occorre dichiarare subito un nuovo microservizio con una piattaforma dedicata.
 
@@ -28,7 +28,7 @@ Anche il monolite richiede deployment ripetibili, monitoraggio e ripristino del 
 
 Confrontiamo due opzioni per il nucleo dell'applicazione. Nell'opzione distribuita consideriamo anche l'estrazione di Account: è una possibilità da valutare, non il risultato già deciso.
 
-![Confronto tra un nucleo Account e Todo distribuito insieme e servizi separati con archivi propri. Il secondo richiede contratti di rete, gestione dei guasti e rilasci compatibili.](../diagrams/distributed-systems-cost/operational-cost.svg)
+![Confronto tra un nucleo Account e Todo distribuito insieme e servizi separati con archivi propri. Il secondo richiede contratti di rete, gestione dei guasti e rilasci compatibili.](../diagrams/10-distributed-systems-cost/operational-cost.svg)
 
 *Figura 1 — I confini del modello possono rimanere simili; cambiano comunicazione e responsabilità operative.*
 
@@ -43,7 +43,7 @@ Confrontiamo due opzioni per il nucleo dell'applicazione. Nell'opzione distribui
 
 Non sono vantaggi automatici. Due servizi sullo stesso nodo, con lo stesso database saturo, condividono ancora importanti cause di guasto. Due pipeline che richiedono sempre un rilascio simultaneo offrono poca autonomia effettiva: è un *monolite distribuito*, con i costi della rete e senza il beneficio dell'indipendenza.
 
-Con archivi separati sparisce anche un'opzione del capitolo sul monolite modulare: la [vista condivisa](modular-monolith.md#e-le-letture-che-attraversano-i-moduli). Una schermata che combina dati di Account e Todo deve chiamare l'altro servizio o tenerne una copia che può restare indietro, e le operazioni che toccano entrambi gli archivi seguono le regole di [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md).
+Con archivi separati sparisce anche un'opzione del capitolo sul monolite modulare: la [vista condivisa](02-modular-monolith.md#e-le-letture-che-attraversano-i-moduli). Una schermata che combina dati di Account e Todo deve chiamare l'altro servizio o tenerne una copia che può restare indietro, e le operazioni che toccano entrambi gli archivi seguono le regole di [Dove dovrebbe finire una transazione?](09-transactions-eventual-consistency.md).
 
 ## Una chiamata di rete richiede una politica
 
@@ -59,7 +59,7 @@ Il service discovery stabilisce dove raggiungere un servizio; autenticazione e a
 
 Supponiamo che Account cambi il formato della risposta mentre alcune repliche di Todo usano ancora la versione precedente. Un rilascio progressivo crea questa convivenza anche quando le pipeline partono a pochi minuti di distanza.
 
-I contratti devono quindi evolvere mantenendo compatibilità per una finestra concordata. Possiamo aggiungere un campo, aggiornare i consumatori e rimuovere quello precedente quando non serve più. I test del contratto aiutano a verificare il formato; la semantica richiede esempi condivisi, come nel [capitolo sugli eventi di integrazione](domain-vs-integration-events.md).
+I contratti devono quindi evolvere mantenendo compatibilità per una finestra concordata. Possiamo aggiungere un campo, aggiornare i consumatori e rimuovere quello precedente quando non serve più. I test del contratto aiutano a verificare il formato; la semantica richiede esempi condivisi, come nel [capitolo sugli eventi di integrazione](04-domain-vs-integration-events.md).
 
 Anche le migrazioni devono permettere a vecchio e nuovo codice di convivere. Tornare al binario precedente non ripristina automaticamente dati cancellati o trasformati. Ogni servizio possiede migrazioni, backup e procedura di ripristino del proprio archivio.
 
@@ -67,7 +67,7 @@ Container e orchestrazione possono automatizzare riavvii, posizionamento e rollo
 
 ## Quando il guasto attraversa una coda
 
-Report si ferma per un'ora. Todo può continuare a salvare attività e messaggi nell'[outbox](outbox-pattern.md), se resta capacità sufficiente. La separazione protegge il percorso dell'utente, ma il lavoro in attesa cresce e dovrà essere recuperato.
+Report si ferma per un'ora. Todo può continuare a salvare attività e messaggi nell'[outbox](05-outbox-pattern.md), se resta capacità sufficiente. La separazione protegge il percorso dell'utente, ma il lavoro in attesa cresce e dovrà essere recuperato.
 
 Osserviamo quindi ritardo del report, età del messaggio più vecchio, tasso di errori e capacità di smaltimento. Un allarme sulla sola CPU potrebbe non rilevare un consumer vivo che rifiuta tutti i messaggi.
 
@@ -93,8 +93,8 @@ I microservizi possono comprare autonomia di rilascio, capacità e isolamento. I
 
 ---
 
-[Capitolo precedente: Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md)
+[Capitolo precedente: Dove dovrebbe finire una transazione?](09-transactions-eventual-consistency.md)
 
-[Capitolo successivo: Dalla palla di fango ai confini espliciti](from-big-ball-of-mud.md)
+[Capitolo successivo: Dalla palla di fango ai confini espliciti](11-from-big-ball-of-mud.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)

@@ -34,7 +34,7 @@ Partirei da una conversazione su tre domande: chi decide una regola, quali infor
 | Todo | Creazione, completamento, riapertura e limite degli attivi | Identificativo del proprietario e informazioni concordate da Account |
 | Report | Conteggi e raggruppamenti temporali | Fatti di completamento pubblicati da Todo |
 
-Nel [monolite modulare](modular-monolith.md), Account può esporre una piccola API chiamata nello stesso processo. Non serve una rete per far rispettare un confine. Todo conserva l'identificativo e possiede la propria riga di coordinamento per il limite: non modifica l'entità di Account per aggiungervi un contatore.
+Nel [monolite modulare](02-modular-monolith.md), Account può esporre una piccola API chiamata nello stesso processo. Non serve una rete per far rispettare un confine. Todo conserva l'identificativo e possiede la propria riga di coordinamento per il limite: non modifica l'entità di Account per aggiungervi un contatore.
 
 ## Un esempio: dipendere da ciò che serve
 
@@ -75,7 +75,7 @@ Per una semplice inoltrata, questo adattatore può essere superfluo: usare diret
 
 Se un sistema esterno restituisse `customerStatus: "ENABLED"`, Todo potrebbe tradurlo nel concetto locale concordato di proprietario abilitato. Questa protezione semantica è il motivo di una *anti-corruption layer*: evitare che il modello esterno detti quello interno. Rinominare campi senza una differenza di significato non giustifica automaticamente un nuovo livello.
 
-![Account espone un contratto pubblico; un adattatore di Todo lo collega alle esigenze locali. I modelli interni e le tabelle mantengono proprietari distinti.](../diagrams/bounded-contexts/model-boundary.svg)
+![Account espone un contratto pubblico; un adattatore di Todo lo collega alle esigenze locali. I modelli interni e le tabelle mantengono proprietari distinti.](../diagrams/06-bounded-contexts/model-boundary.svg)
 
 *Figura 1 — La superficie pubblica rende esplicita la relazione. Il deployment può rimanere unico.*
 
@@ -85,15 +85,15 @@ Bloccare gli import non basta se Todo esegue query arbitrarie su `account.users`
 
 Assegniamo quindi un proprietario a tabelle e migrazioni. Schemi distinti aiutano a riconoscerlo, ma la barriera effettiva dipende anche da query, repository e permessi. Nel monolite possiamo iniziare con regole e revisione del codice; per esigenze più forti valutiamo credenziali separate, considerando il costo di gestirle.
 
-Una join trasversale per un report può essere un compromesso esplicito, per esempio su una vista pubblica mantenuta dal proprietario, come nelle opzioni di [E le letture che attraversano i moduli?](modular-monolith.md#e-le-letture-che-attraversano-i-moduli). Documentiamo quali cambiamenti richiedono coordinamento. Un accesso in sola lettura rimane una dipendenza dallo schema e può creare carico sul database altrui.
+Una join trasversale per un report può essere un compromesso esplicito, per esempio su una vista pubblica mantenuta dal proprietario, come nelle opzioni di [E le letture che attraversano i moduli?](02-modular-monolith.md#e-le-letture-che-attraversano-i-moduli). Documentiamo quali cambiamenti richiedono coordinamento. Un accesso in sola lettura rimane una dipendenza dallo schema e può creare carico sul database altrui.
 
 Lo stesso vale per una foreign key tra contesti. Offre integrità locale, ma lega migrazioni e ciclo di vita dei dati. Evitarla senza un'alternativa non rende automaticamente il sistema migliore: occorre decidere come gestire riferimenti non più validi.
 
 ## Comunicare significa anche concordare il tempo
 
-`exists` risponde sullo stato osservato in quel momento. L'account può essere cancellato dopo il controllo. Se il prodotto richiede che nessun todo venga creato dopo l'avvio della cancellazione, serve un protocollo che renda effettivo quel vincolo; due cartelle e una chiamata non lo forniscono. Il coordinamento tra contesti è approfondito in [Dove dovrebbe finire una transazione?](transactions-eventual-consistency.md).
+`exists` risponde sullo stato osservato in quel momento. L'account può essere cancellato dopo il controllo. Se il prodotto richiede che nessun todo venga creato dopo l'avvio della cancellazione, serve un protocollo che renda effettivo quel vincolo; due cartelle e una chiamata non lo forniscono. Il coordinamento tra contesti è approfondito in [Dove dovrebbe finire una transazione?](09-transactions-eventual-consistency.md).
 
-Per Report accettiamo invece aggiornamenti successivi. Il [contratto di integrazione](domain-vs-integration-events.md) stabilisce cosa significa un completamento, mentre l'[outbox](outbox-pattern.md) conserva i messaggi da consegnare. La relazione comprende formato, responsabilità, ritardo accettabile e recupero degli errori.
+Per Report accettiamo invece aggiornamenti successivi. Il [contratto di integrazione](04-domain-vs-integration-events.md) stabilisce cosa significa un completamento, mentre l'[outbox](05-outbox-pattern.md) conserva i messaggi da consegnare. La relazione comprende formato, responsabilità, ritardo accettabile e recupero degli errori.
 
 Un pacchetto condiviso può contenere questi contratti. Se comincia a esportare entità, repository e regole interne, ricrea senza dichiararlo un modello comune: uno *Shared Kernel* non concordato. Terrei piccola quella superficie e verificherei anche ciò che i suoi file riesportano.
 
@@ -103,12 +103,12 @@ Confini espliciti permettono a ogni modello di evolvere secondo le proprie esige
 
 Per questa applicazione manteniamo Account e Todo nello stesso deployment, con responsabilità e dati distinti. Todo consulta l'API pubblica di Account; Report riceve fatti confermati. Non creiamo un contesto per ogni entità o una rete di adattatori per ogni chiamata.
 
-La verifica concreta è una modifica: rinominare una colonna privata di Account non dovrebbe richiedere interventi in Todo, finché l'API conserva il significato concordato. Se invece cambia quel significato, il coordinamento è necessario e deve essere visibile. Nel [capitolo sui test architetturali](architecture-boundary-tests.md) renderemo automatici alcuni di questi controlli.
+La verifica concreta è una modifica: rinominare una colonna privata di Account non dovrebbe richiedere interventi in Todo, finché l'API conserva il significato concordato. Se invece cambia quel significato, il coordinamento è necessario e deve essere visibile. Nel [capitolo sui test architetturali](08-architecture-boundary-tests.md) renderemo automatici alcuni di questi controlli.
 
 ---
 
-[Capitolo precedente: Perché salvare dati e pubblicare un evento è difficile](outbox-pattern.md)
+[Capitolo precedente: Perché salvare dati e pubblicare un evento è difficile](05-outbox-pattern.md)
 
-[Capitolo successivo: Il dominio non dovrebbe conoscere HTTP](domain-http-error-mapping.md)
+[Capitolo successivo: Il dominio non dovrebbe conoscere HTTP](07-domain-http-error-mapping.md)
 
 [Torna all'indice dei capitoli](../README.md#capitoli)
