@@ -54,22 +54,23 @@ I capitoli sono divisi in due sezioni. La prima segue un percorso dal problema d
 
 ### Sezione 2: l'AI nelle pratiche di architettura
 
-Il filo conduttore è quello del capitolo 1.7: il dominio non conosce HTTP, e non deve conoscere nemmeno il modello. Una sola funzione attraversa questi capitoli: l'utente incolla gli appunti di una riunione e il modello propone i todo da creare.
+Il filo conduttore è quello del capitolo 1.7: il dominio non conosce HTTP, e non deve conoscere nemmeno il modello. Una sola funzione attraversa i capitoli sul modello dentro l'applicazione: l'utente incolla gli appunti di una riunione e il modello propone i todo da creare. Il capitolo 2.4 cambia punto di vista e guarda all'agente che lavora sul codice: come gli si affida un incarico in modo che il risultato sia verificabile.
 
 | # | Capitolo | Domanda centrale | Stato |
 | --- | --- | --- | --- |
 | 2.1 | [Il dominio non dovrebbe conoscere il modello](articles/2.01-domain-llm-boundary.md) | Se l'LLM sparisse domani, il caso d'uso avrebbe ancora senso? Dove vive l'adapter? | Bozza |
 | 2.2 | [Una chiamata al modello è una chiamata remota](articles/2.02-llm-call-is-remote-call.md) | Timeout, retry, idempotenza e costi in token: quale parte della resilienza già nota si applica? | Bozza |
 | 2.3 | [L'output del modello è input non fidato](articles/2.03-llm-output-untrusted-input.md) | Validiamo la risposta del modello come validiamo una richiesta HTTP? Dove fermiamo una prompt injection? | Bozza |
-| 2.4 | Esporre i casi d'uso come tool: l'agente chiama l'application service, non il database | Se un agente crea un todo, chi fa rispettare il limite dei tre attivi? | Prossima pubblicazione |
-| 2.5 | Serve davvero un vector database? | `pgvector` nel database che abbiamo o un servizio dedicato: quale complessità giustifica il secondo? | Prossima pubblicazione |
-| 2.6 | Gli eval sono i test di un confine non deterministico | Come dimostriamo che una funzionalità basata su LLM non è peggiorata dopo un cambio di prompt o di modello? | Prossima pubblicazione |
-| 2.7 | Prompt e versione del modello sono dipendenze da versionare | Cambiare prompt è un cambio di contratto? Come lo registriamo e come torniamo indietro? | Prossima pubblicazione |
-| 2.8 | Human in the loop è un process manager | L'approvazione umana di un'azione proposta dall'agente è un passo di una saga: dove si salva lo stato? | Prossima pubblicazione |
-| 2.9 | I test di architettura come guardrail per il codice generato | Come impediamo che un agente di coding eroda i confini più velocemente di quanto un umano li riveda? | Prossima pubblicazione |
-| 2.10 | Il debito da comprensione: velocità generata, interessi pagati in revisione | Quanto codice possiamo accettare senza averlo capito, e chi ne paga gli interessi? | Prossima pubblicazione |
-| 2.11 | ADR e documentazione come contesto per gli agenti | Le decisioni scritte per gli umani bastano a un agente, o il repository deve spiegare i propri confini? | Prossima pubblicazione |
-| 2.12 | L'LLM come consumer di eventi di integrazione | Classificare i todo in modo asincrono a partire da `TodoCreated`: consistenza eventuale con un passo non deterministico | Prossima pubblicazione |
+| 2.4 | [Dire all'agente cosa ottenere, non come farlo](articles/2.04-outcome-over-procedure.md) | Stiamo descrivendo il procedimento o il risultato? E chi dimostra che il lavoro è finito? | Bozza |
+| 2.5 | Esporre i casi d'uso come tool: l'agente chiama l'application service, non il database | Se un agente crea un todo, chi fa rispettare il limite dei tre attivi? | Prossima pubblicazione |
+| 2.6 | Serve davvero un vector database? | `pgvector` nel database che abbiamo o un servizio dedicato: quale complessità giustifica il secondo? | Prossima pubblicazione |
+| 2.7 | Gli eval sono i test di un confine non deterministico | Come dimostriamo che una funzionalità basata su LLM non è peggiorata dopo un cambio di prompt o di modello? | Prossima pubblicazione |
+| 2.8 | Prompt e versione del modello sono dipendenze da versionare | Cambiare prompt è un cambio di contratto? Come lo registriamo e come torniamo indietro? | Prossima pubblicazione |
+| 2.9 | Human in the loop è un process manager | L'approvazione umana di un'azione proposta dall'agente è un passo di una saga: dove si salva lo stato? | Prossima pubblicazione |
+| 2.10 | I test di architettura come guardrail per il codice generato | Come impediamo che un agente di coding eroda i confini più velocemente di quanto un umano li riveda? | Prossima pubblicazione |
+| 2.11 | Il debito da comprensione: velocità generata, interessi pagati in revisione | Quanto codice possiamo accettare senza averlo capito, e chi ne paga gli interessi? | Prossima pubblicazione |
+| 2.12 | ADR e documentazione come contesto per gli agenti | Le decisioni scritte per gli umani bastano a un agente, o il repository deve spiegare i propri confini? | Prossima pubblicazione |
+| 2.13 | L'LLM come consumer di eventi di integrazione | Classificare i todo in modo asincrono a partire da `TodoCreated`: consistenza eventuale con un passo non deterministico | Prossima pubblicazione |
 
 ## Struttura del repository
 
@@ -89,9 +90,10 @@ articles/
 ├── 1.12-technical-debt.md                     Capitolo 1.12
 ├── 2.01-domain-llm-boundary.md                Capitolo 2.1
 ├── 2.02-llm-call-is-remote-call.md            Capitolo 2.2
-└── 2.03-llm-output-untrusted-input.md         Capitolo 2.3
+├── 2.03-llm-output-untrusted-input.md         Capitolo 2.3
+└── 2.04-outcome-over-procedure.md             Capitolo 2.4
 examples/                                      Riservata a piccoli esempi autonomi
 diagrams/                                      Illustrazioni SVG richiamate negli articoli
 ```
 
-Nella prima sezione, i capitoli da 1.1 a 1.10 seguono un percorso dal problema di business ai costi operativi delle scelte architetturali; il capitolo 1.11 applica quel percorso a un sistema esistente e il capitolo 1.12 spiega come evitare di tornarci. La seconda sezione introduce un modello linguistico nell'applicazione Todo e mostra che le decisioni restano le stesse: confini espliciti, politiche per le chiamate remote e validazione di ciò che entra. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione.
+Nella prima sezione, i capitoli da 1.1 a 1.10 seguono un percorso dal problema di business ai costi operativi delle scelte architetturali; il capitolo 1.11 applica quel percorso a un sistema esistente e il capitolo 1.12 spiega come evitare di tornarci. La seconda sezione introduce un modello linguistico nell'applicazione Todo e mostra che le decisioni restano le stesse: confini espliciti, politiche per le chiamate remote e validazione di ciò che entra; il capitolo 2.4 applica lo stesso metodo all'agente di coding, con obiettivi, verifiche e confini al posto delle istruzioni passo per passo. Codice e diagrammi accompagnano il testo quando aiutano a chiarire una specifica decisione.

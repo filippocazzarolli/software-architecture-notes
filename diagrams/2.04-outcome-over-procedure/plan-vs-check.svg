@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="560" viewBox="0 0 1040 560" role="img" aria-labelledby="title desc">
+  <title id="title">Dal piano al risultato verificabile</title>
+  <desc id="desc">Due colonne. A sinistra l'istruzione procedurale: una lista di passaggi, l'agente li esegue, scrive «fatto», e la revisione umana deve rileggere tutto. A destra la specificazione orientata all'esito: obiettivo, verifica e vincoli; l'agente sceglie il percorso, lancia il controllo, corregge e ripete fino a quando il controllo passa o si esaurisce il limite di tentativi; la revisione umana legge le evidenze. In basso una fascia con i confini: operazioni vietate, operazioni che richiedono approvazione, limite di tentativi e condizioni per fermarsi.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+    <marker id="arrow-green" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#14766d" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="560" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">2.4 / OBIETTIVO, VERIFICA, LIBERTÀ</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Dal piano al risultato verificabile</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Il controllo si sposta dai passaggi ai criteri, ai check e alle autorizzazioni.</text>
+
+    <!-- Colonna sinistra: istruzione procedurale -->
+    <rect x="32" y="146" width="460" height="250" rx="12" fill="#fff4e6" stroke="#dcbf92"/>
+    <text x="52" y="176" font-size="14" font-weight="700" fill="#b07a2a">ISTRUZIONE PROCEDURALE</text>
+    <text x="52" y="206" font-size="21" font-weight="700">«Esegui questi passaggi»</text>
+
+    <rect x="52" y="226" width="150" height="34" rx="8" fill="#fff" stroke="#dcbf92"/>
+    <text x="127" y="248" font-size="14" text-anchor="middle" fill="#52647a">Passo 1 … Passo N</text>
+    <path d="M202 243 L236 243" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="240" y="226" width="110" height="34" rx="8" fill="#fff" stroke="#dcbf92"/>
+    <text x="295" y="248" font-size="14" text-anchor="middle" fill="#52647a">Agente esegue</text>
+    <path d="M350 243 L384 243" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="388" y="226" width="84" height="34" rx="8" fill="#fff" stroke="#dcbf92"/>
+    <text x="430" y="248" font-size="14" text-anchor="middle" fill="#52647a">«Fatto»</text>
+
+    <text x="52" y="296" font-size="15" fill="#52647a">Il percorso è deciso prima di vedere il codice</text>
+    <text x="52" y="320" font-size="15" fill="#52647a">«Finito» è un'affermazione dell'agente</text>
+    <text x="52" y="344" font-size="15" fill="#52647a">La revisione rilegge ogni passaggio</text>
+    <text x="52" y="376" font-size="14" font-weight="700" fill="#b07a2a">Responsabilità delegata, controllo nel posto sbagliato</text>
+
+    <!-- Colonna destra: specificazione orientata all'esito -->
+    <rect x="548" y="146" width="460" height="250" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+    <text x="568" y="176" font-size="14" font-weight="700" fill="#355b91">SPECIFICAZIONE ORIENTATA ALL'ESITO</text>
+    <text x="568" y="206" font-size="21" font-weight="700">«Raggiungi questo stato e dimostralo»</text>
+
+    <rect x="568" y="226" width="96" height="34" rx="8" fill="#fff" stroke="#a9bddc"/>
+    <text x="616" y="248" font-size="14" text-anchor="middle" fill="#52647a">Obiettivo</text>
+    <path d="M664 243 L698 243" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="702" y="226" width="110" height="34" rx="8" fill="#fff" stroke="#a9bddc"/>
+    <text x="757" y="248" font-size="14" text-anchor="middle" fill="#52647a">Agente sceglie</text>
+    <path d="M812 243 L846 243" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="850" y="226" width="80" height="34" rx="8" fill="#e3f3f1" stroke="#14766d"/>
+    <text x="890" y="248" font-size="14" text-anchor="middle" fill="#14766d">Verifica</text>
+    <!-- loop back -->
+    <path d="M890 260 L890 284 L757 284 L757 264" fill="none" stroke="#14766d" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow-green)"/>
+    <text x="823" y="301" font-size="12" text-anchor="middle" fill="#14766d">fallisce → correggi, entro il limite</text>
+    <path d="M930 243 L964 243" fill="none" stroke="#14766d" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+    <text x="984" y="248" font-size="14" fill="#14766d" font-weight="700">✓</text>
+
+    <text x="568" y="328" font-size="15" fill="#52647a">Il percorso è deciso dall'agente, davanti al codice</text>
+    <text x="568" y="352" font-size="15" fill="#52647a">«Finito» lo dice un controllo indipendente</text>
+    <text x="568" y="376" font-size="14" font-weight="700" fill="#355b91">La revisione legge le evidenze, non i passaggi</text>
+
+    <path d="M496 271 L544 271" fill="none" stroke="#52647a" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- Fascia inferiore: confini -->
+    <rect x="32" y="424" width="976" height="104" rx="12" fill="#fff" stroke="#bbc9d8" stroke-dasharray="6 4"/>
+    <text x="52" y="451" font-size="15" font-weight="700">Confini dell'autonomia</text>
+    <text x="52" y="478" font-size="15" fill="#52647a">Operazioni vietate (Hook, non solo istruzioni) · Operazioni che richiedono approvazione · Limite di tentativi, costo o durata</text>
+    <text x="52" y="502" font-size="15" fill="#52647a">Condizioni per fermarsi e chiedere: ambiguità sui requisiti, vincolo in conflitto con l'obiettivo, fallimento estraneo all'incarico</text>
+  </g>
+</svg>
