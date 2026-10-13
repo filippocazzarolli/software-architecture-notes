@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="520" viewBox="0 0 1040 520" role="img" aria-labelledby="title desc">
+  <title id="title">Una colonna prima di un archivio</title>
+  <desc id="desc">Tre riquadri da sinistra a destra: la ricerca testuale di PostgreSQL, con un indice tsvector e nessuna chiamata remota; pgvector nello stesso database, con una colonna embedding, un job che la calcola dopo il commit e una query filtrata per proprietario; un servizio vettoriale dedicato, con doppia scrittura attraverso l'outbox, un indice da ricostruire e un secondo archivio da gestire. Una fascia in basso ricorda che il vettore è una colonna derivata e che PostgreSQL resta la fonte di verità.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="520" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">2.6 / VECTOR DATABASE</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Una colonna prima di un archivio</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Ogni opzione aggiunge qualcosa alla precedente. La terza aggiunge un secondo archivio.</text>
+
+    <rect x="32" y="146" width="300" height="190" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="370" y="146" width="300" height="190" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+    <rect x="708" y="146" width="300" height="190" rx="12" fill="#fff4e6" stroke="#dcbf92"/>
+
+    <text x="52" y="176" font-size="14" font-weight="700" fill="#52647a">1 · POSTGRESQL</text>
+    <text x="52" y="206" font-size="21" font-weight="700">Ricerca testuale</text>
+    <text x="52" y="240" font-size="15" fill="#52647a">Indice tsvector, configurazione italiana</text>
+    <text x="52" y="262" font-size="15" fill="#52647a">Nessuna chiamata remota</text>
+    <text x="52" y="284" font-size="15" fill="#52647a">Trova parole, non significati</text>
+    <text x="52" y="316" font-size="13" fill="#14766d">Misura: ricerche a vuoto</text>
+
+    <text x="390" y="176" font-size="14" font-weight="700" fill="#355b91">2 · POSTGRESQL + PGVECTOR</text>
+    <text x="390" y="206" font-size="21" font-weight="700">Una colonna in più</text>
+    <text x="390" y="240" font-size="15" fill="#52647a">embedding calcolato dopo il commit</text>
+    <text x="390" y="262" font-size="15" fill="#52647a">Query filtrata per proprietario, esatta</text>
+    <text x="390" y="284" font-size="15" fill="#52647a">Stessa transazione, stesso backup</text>
+    <text x="390" y="316" font-size="13" fill="#14766d">Misura: latenza p95, età del job più vecchio</text>
+
+    <text x="728" y="176" font-size="14" font-weight="700" fill="#b07a2a">3 · SERVIZIO DEDICATO</text>
+    <text x="728" y="206" font-size="21" font-weight="700">Un secondo archivio</text>
+    <text x="728" y="240" font-size="15" fill="#52647a">Doppia scrittura: passa dall'outbox</text>
+    <text x="728" y="262" font-size="15" fill="#52647a">Proiezione ricostruibile da PostgreSQL</text>
+    <text x="728" y="284" font-size="15" fill="#52647a">Operazioni, credenziali, ripristino</text>
+    <text x="728" y="316" font-size="13" fill="#14766d">Misura: vettori totali, costruzione dell'indice</text>
+
+    <path d="M332 241 L366 241" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M670 241 L704 241" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="520" y="366" font-size="14" text-anchor="middle" fill="#14766d">Si passa alla colonna successiva con un dato misurato, non con un consiglio del fornitore.</text>
+
+    <rect x="32" y="390" width="976" height="66" rx="12" fill="#fff" stroke="#bbc9d8" stroke-dasharray="6 4"/>
+    <text x="52" y="417" font-size="15" font-weight="700">Il vettore è una colonna derivata</text>
+    <text x="52" y="440" font-size="15" fill="#52647a">PostgreSQL resta la fonte di verità. Il modello di embedding è una dipendenza con versione: ogni riga registra con quale è stata calcolata.</text>
+
+    <text x="36" y="496" font-size="15" fill="#52647a">Con il fornitore fermo, la creazione dei todo continua e la ricerca testuale copre il ritardo.</text>
+  </g>
+</svg>

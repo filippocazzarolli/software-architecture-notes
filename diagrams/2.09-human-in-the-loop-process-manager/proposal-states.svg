@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="560" viewBox="0 0 1040 560" role="img" aria-labelledby="title desc">
+  <title id="title">Lo stato sta in una tabella</title>
+  <desc id="desc">A sinistra una macchina a stati con sei stati: proposed in alto, prodotto dal modello attraverso lo strumento; da proposed partono tre frecce verso approved, prodotto da una persona, rejected, prodotto da una persona, ed expired, prodotto dal tempo; da approved partono due frecce verso executed e failed, prodotti dal caso d'uso nella stessa transazione dell'approvazione. A destra la tabella proposed_actions con le sue colonne e tre proprietà: lock sulla riga, chiave di idempotenza uguale all'identificativo, comando strutturato mai reinterpretato. Una fascia in basso ricorda che le regole si applicano al momento dell'esecuzione.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+    <marker id="arrow-green" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#14766d" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="560" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">2.9 / HUMAN IN THE LOOP</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Lo stato sta in una tabella</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Il modello propone, una persona decide, il caso d'uso esegue.</text>
+
+    <!-- Macchina a stati -->
+    <rect x="32" y="146" width="560" height="300" rx="12" fill="#fff" stroke="#bbc9d8"/>
+
+    <rect x="232" y="166" width="160" height="40" rx="8" fill="#fff4e6" stroke="#dcbf92"/>
+    <text x="312" y="191" font-size="15" text-anchor="middle" font-weight="700">proposed</text>
+    <text x="412" y="191" font-size="12" fill="#b07a2a">← il modello, via tool</text>
+
+    <path d="M272 206 L132 250" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M312 206 L312 250" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M352 206 L492 250" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <rect x="52" y="254" width="160" height="40" rx="8" fill="#eaf0fa" stroke="#a9bddc"/>
+    <text x="132" y="279" font-size="15" text-anchor="middle" font-weight="700">approved</text>
+    <rect x="232" y="254" width="160" height="40" rx="8" fill="#fff" stroke="#bbc9d8"/>
+    <text x="312" y="279" font-size="15" text-anchor="middle" font-weight="700">rejected</text>
+    <rect x="412" y="254" width="160" height="40" rx="8" fill="#fff" stroke="#bbc9d8"/>
+    <text x="492" y="279" font-size="15" text-anchor="middle" font-weight="700">expired</text>
+    <text x="132" y="312" font-size="12" text-anchor="middle" fill="#355b91">una persona autorizzata</text>
+    <text x="312" y="312" font-size="12" text-anchor="middle" fill="#52647a">una persona</text>
+    <text x="492" y="312" font-size="12" text-anchor="middle" fill="#52647a">il tempo (worker)</text>
+
+    <path d="M96 294 L96 346" fill="none" stroke="#14766d" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+    <path d="M180 294 L180 346" fill="none" stroke="#14766d" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+    <rect x="52" y="350" width="88" height="40" rx="8" fill="#e3f3f1" stroke="#14766d"/>
+    <text x="96" y="375" font-size="14" text-anchor="middle" font-weight="700" fill="#14766d">executed</text>
+    <rect x="148" y="350" width="64" height="40" rx="8" fill="#e3f3f1" stroke="#14766d"/>
+    <text x="180" y="375" font-size="14" text-anchor="middle" font-weight="700" fill="#14766d">failed</text>
+    <text x="132" y="412" font-size="12" text-anchor="middle" fill="#14766d">il caso d'uso, nella stessa transazione</text>
+    <text x="132" y="428" font-size="12" text-anchor="middle" fill="#14766d">failed porta il motivo: TodoLimitExceeded</text>
+
+    <!-- Tabella -->
+    <rect x="624" y="146" width="384" height="300" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+    <text x="644" y="176" font-size="14" font-weight="700" fill="#355b91">POSTGRESQL · SCHEMA TODO</text>
+    <text x="644" y="206" font-size="21" font-weight="700">proposed_actions</text>
+    <text x="644" y="236" font-size="13" font-family="Menlo, Consolas, monospace" fill="#52647a">id, owner_id, command jsonb,</text>
+    <text x="644" y="254" font-size="13" font-family="Menlo, Consolas, monospace" fill="#52647a">based_on_version, status,</text>
+    <text x="644" y="272" font-size="13" font-family="Menlo, Consolas, monospace" fill="#52647a">proposed_at, expires_at,</text>
+    <text x="644" y="290" font-size="13" font-family="Menlo, Consolas, monospace" fill="#52647a">decided_by, decided_at, result jsonb</text>
+    <text x="644" y="330" font-size="15" fill="#52647a">Lock sulla riga: due schede, un effetto</text>
+    <text x="644" y="354" font-size="15" fill="#52647a">Chiave di idempotenza = id della proposta</text>
+    <text x="644" y="378" font-size="15" fill="#52647a">Comando strutturato, mai reinterpretato</text>
+    <text x="644" y="402" font-size="15" fill="#52647a">Sopravvive a riavvii, deploy e schede chiuse</text>
+
+    <rect x="32" y="466" width="976" height="66" rx="12" fill="#fff" stroke="#bbc9d8" stroke-dasharray="6 4"/>
+    <text x="52" y="493" font-size="15" font-weight="700">Le regole si applicano quando l'effetto avviene</text>
+    <text x="52" y="516" font-size="15" fill="#52647a">Tra proposta e decisione il mondo cambia: il limite dei tre attivi e la proprietà si verificano all'esecuzione, non alla proposta.</text>
+  </g>
+</svg>

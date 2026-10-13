@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="560" viewBox="0 0 1040 560" role="img" aria-labelledby="title desc">
+  <title id="title">Il tool è il quarto ingresso</title>
+  <desc id="desc">Tre ingressi affiancati in alto, HTTP, CLI e tool dell'agente, ciascuno con tre responsabilità: validare la forma dell'input, prendere l'attore dalla sessione, tradurre l'esito nel proprio canale. Tre frecce convergono su un riquadro centrale con i casi d'uso CreateTodo e CompleteTodo, che applicano il limite dei tre attivi e il controllo di proprietà nella transazione. Sotto, il repository e PostgreSQL, raggiunti soltanto dai casi d'uso. Una fascia in basso elenca ciò che il modello non riceve: SQL, repository, identità dell'attore.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="560" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">2.5 / CASI D'USO COME TOOL</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Il tool è il quarto ingresso</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Il modello sceglie quale caso d'uso invocare; il caso d'uso decide se eseguirlo.</text>
+
+    <!-- Ingressi -->
+    <rect x="32" y="146" width="300" height="118" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <text x="52" y="174" font-size="14" font-weight="700" fill="#52647a">PRESENTATION / HTTP</text>
+    <text x="52" y="200" font-size="19" font-weight="700">Controller</text>
+    <text x="52" y="226" font-size="14" fill="#52647a">Valida il corpo · attore dalla sessione</text>
+    <text x="52" y="246" font-size="14" fill="#52647a">TodoLimitExceeded → 409</text>
+
+    <rect x="370" y="146" width="300" height="118" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <text x="390" y="174" font-size="14" font-weight="700" fill="#52647a">PRESENTATION / CLI</text>
+    <text x="390" y="200" font-size="19" font-weight="700">Comando</text>
+    <text x="390" y="226" font-size="14" fill="#52647a">Valida gli argomenti · attore dal contesto</text>
+    <text x="390" y="246" font-size="14" fill="#52647a">TodoLimitExceeded → codice di uscita</text>
+
+    <rect x="708" y="146" width="300" height="118" rx="12" fill="#fff4e6" stroke="#dcbf92"/>
+    <text x="728" y="174" font-size="14" font-weight="700" fill="#b07a2a">PRESENTATION / AGENT</text>
+    <text x="728" y="200" font-size="19" font-weight="700">Tool create_todo</text>
+    <text x="728" y="226" font-size="14" fill="#52647a">Valida lo schema · attore dalla sessione</text>
+    <text x="728" y="246" font-size="14" fill="#52647a">TodoLimitExceeded → risultato leggibile</text>
+
+    <!-- Frecce verso i casi d'uso -->
+    <path d="M182 264 L182 290 L520 290 L520 310" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M520 264 L520 310" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M858 264 L858 290 L520 290" fill="none" stroke="#52647a" stroke-width="1.5"/>
+
+    <!-- Casi d'uso -->
+    <rect x="220" y="314" width="600" height="96" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+    <text x="240" y="342" font-size="14" font-weight="700" fill="#355b91">APPLICATION + DOMINIO</text>
+    <text x="240" y="368" font-size="19" font-weight="700">CreateTodo · CompleteTodo</text>
+    <text x="240" y="394" font-size="14" fill="#52647a">Limite dei tre attivi e proprietà, in transazione · chiave di idempotenza per chiamata</text>
+
+    <path d="M520 410 L520 434" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="380" y="438" width="280" height="36" rx="8" fill="#fff" stroke="#bbc9d8"/>
+    <text x="520" y="461" font-size="14" text-anchor="middle" fill="#52647a">Repository → PostgreSQL</text>
+
+    <!-- Fascia inferiore -->
+    <rect x="32" y="486" width="976" height="66" rx="12" fill="#fff" stroke="#bbc9d8" stroke-dasharray="6 4"/>
+    <text x="52" y="512" font-size="15" font-weight="700">Cosa il modello non riceve</text>
+    <text x="52" y="535" font-size="15" fill="#52647a">Uno strumento SQL, l'accesso al repository, la scelta di chi è l'attore. L'insieme dei tool è l'insieme dei suoi permessi.</text>
+  </g>
+</svg>

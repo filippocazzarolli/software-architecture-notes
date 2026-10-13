@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="560" viewBox="0 0 1040 560" role="img" aria-labelledby="title desc">
+  <title id="title">Ogni livello risponde a una domanda</title>
+  <desc id="desc">Quattro barre orizzontali impilate dal basso verso l'alto: unit test del caso d'uso con il fake, fixture del parser, test di contratto dell'adapter, eval con tasso e soglia. Accanto a ogni barra, cosa dimostra e quando gira. Sopra, la metrica di produzione: il tasso di accettazione delle proposte, che gli eval cercano di prevedere. Una fascia in basso ricorda che ogni segnalazione del supporto diventa un caso del dataset.</desc>
+  <rect width="1040" height="560" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">2.7 / EVAL</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Ogni livello risponde a una domanda</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Gli eval rispondono a «è peggiorato?» con un tasso, non con un booleano.</text>
+
+    <!-- Produzione -->
+    <rect x="32" y="142" width="976" height="52" rx="12" fill="#e3f3f1" stroke="#14766d"/>
+    <text x="52" y="166" font-size="14" font-weight="700" fill="#14766d">PRODUZIONE</text>
+    <text x="52" y="185" font-size="15" fill="#182b43">Tasso di accettazione delle proposte: quante l'utente conferma. Gli eval cercano di prevederlo prima del rilascio.</text>
+
+    <!-- Eval -->
+    <rect x="32" y="206" width="976" height="66" rx="12" fill="#fff4e6" stroke="#dcbf92"/>
+    <text x="52" y="230" font-size="14" font-weight="700" fill="#b07a2a">EVAL</text>
+    <text x="150" y="230" font-size="16" font-weight="700">Dataset di casi · controlli deterministici, con riferimento, giudice · tasso e soglia</text>
+    <text x="150" y="254" font-size="14" fill="#52647a">Dimostra: qualità sui casi noti rispetto alla versione precedente · Gira: a ogni cambio di prompt, modello, parser, adapter; e di notte</text>
+
+    <!-- Adapter -->
+    <rect x="32" y="284" width="976" height="56" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <text x="52" y="308" font-size="14" font-weight="700" fill="#52647a">ADAPTER</text>
+    <text x="150" y="308" font-size="16" font-weight="700">Test di contratto con il fornitore vero</text>
+    <text x="150" y="330" font-size="14" fill="#52647a">Dimostra: il fornitore risponde nel formato atteso · Gira: su richiesta</text>
+
+    <!-- Parser -->
+    <rect x="32" y="352" width="976" height="56" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <text x="52" y="376" font-size="14" font-weight="700" fill="#52647a">PARSER</text>
+    <text x="150" y="376" font-size="16" font-weight="700">Fixture: una per ogni modo in cui la risposta può essere sbagliata</text>
+    <text x="150" y="398" font-size="14" fill="#52647a">Dimostra: forma, scarti, campi ignorati · Gira: a ogni commit</text>
+
+    <!-- Unit -->
+    <rect x="32" y="420" width="976" height="56" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+    <text x="52" y="444" font-size="14" font-weight="700" fill="#355b91">CASO D'USO</text>
+    <text x="150" y="444" font-size="16" font-weight="700">Unit test con FakeTodoSuggester</text>
+    <text x="150" y="466" font-size="14" fill="#52647a">Dimostra: troncamento, nessuna chiamata senza posti, limite nella transazione · Gira: a ogni commit</text>
+
+    <rect x="32" y="492" width="976" height="44" rx="12" fill="#fff" stroke="#bbc9d8" stroke-dasharray="6 4"/>
+    <text x="52" y="520" font-size="15" fill="#52647a"><tspan font-weight="700" fill="#182b43">Il dataset cresce dalla produzione:</tspan> ogni segnalazione del supporto diventa un caso, come un difetto diventa un test di regressione.</text>
+  </g>
+</svg>

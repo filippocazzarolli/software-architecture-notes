@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="560" viewBox="0 0 1040 560" role="img" aria-labelledby="title desc">
+  <title id="title">Tre dipendenze, tre versioni</title>
+  <desc id="desc">Tre riquadri in alto: il codice dell'adapter e del parser, fissato da git; il prompt, una definizione con versione intera, parametri e schema di uscita condiviso con il parser; il modello, un identificativo datato invece di un alias, con la data di ritiro nel registro del debito. Sotto, il flusso di una modifica in cinque passi: pull request, eval sul diff, rilascio graduale per versione, log e cache con gli identificativi, ritorno con revert o cambio di configurazione. Una fascia in basso elenca ciò che ogni risposta registra.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647a" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1040" height="560" rx="20" fill="#f6f8fb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#182b43">
+    <text x="36" y="45" font-size="14" font-weight="700" letter-spacing="2" fill="#52647a">2.8 / PROMPT E MODELLO</text>
+    <text x="36" y="85" font-size="30" font-weight="700">Tre dipendenze, tre versioni</text>
+    <text x="36" y="116" font-size="18" fill="#52647a">Se una delle tre non ha una versione, non sappiamo cosa è in produzione.</text>
+
+    <rect x="32" y="146" width="300" height="160" rx="12" fill="#fff" stroke="#bbc9d8"/>
+    <rect x="370" y="146" width="300" height="160" rx="12" fill="#fff4e6" stroke="#dcbf92"/>
+    <rect x="708" y="146" width="300" height="160" rx="12" fill="#eaf0fa" stroke="#a9bddc"/>
+
+    <text x="52" y="176" font-size="14" font-weight="700" fill="#52647a">CODICE</text>
+    <text x="52" y="206" font-size="21" font-weight="700">Adapter e parser</text>
+    <text x="52" y="240" font-size="15" fill="#52647a">Fissato da git</text>
+    <text x="52" y="262" font-size="15" fill="#52647a">Il parser usa lo schema del prompt</text>
+    <text x="52" y="284" font-size="15" fill="#52647a">Ritorno: revert e deploy</text>
+
+    <text x="390" y="176" font-size="14" font-weight="700" fill="#b07a2a">PROMPT</text>
+    <text x="390" y="206" font-size="21" font-weight="700">Definizione con versione</text>
+    <text x="390" y="240" font-size="15" fill="#52647a">id, version: 4, params, system, render</text>
+    <text x="390" y="262" font-size="15" fill="#52647a">outputSchema condiviso con il parser</text>
+    <text x="390" y="284" font-size="15" fill="#52647a">Nel repository, accanto all'adapter</text>
+
+    <text x="728" y="176" font-size="14" font-weight="700" fill="#355b91">MODELLO</text>
+    <text x="728" y="206" font-size="21" font-weight="700">Identificativo datato</text>
+    <text x="728" y="240" font-size="15" fill="#52647a">provider-large-2026-03-01, non latest</text>
+    <text x="728" y="262" font-size="15" fill="#52647a">Un lockfile: l'aggiornamento è una PR</text>
+    <text x="728" y="284" font-size="15" fill="#52647a">Data di ritiro nel registro del debito</text>
+
+    <!-- Flusso -->
+    <text x="36" y="346" font-size="14" font-weight="700" letter-spacing="1" fill="#52647a">UNA MODIFICA</text>
+    <rect x="32" y="358" width="170" height="52" rx="8" fill="#fff" stroke="#bbc9d8"/>
+    <text x="117" y="380" font-size="14" text-anchor="middle" font-weight="700">Pull request</text>
+    <text x="117" y="399" font-size="12" text-anchor="middle" fill="#52647a">version + 1, revisione</text>
+    <path d="M202 384 L232 384" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="236" y="358" width="170" height="52" rx="8" fill="#fff" stroke="#bbc9d8"/>
+    <text x="321" y="380" font-size="14" text-anchor="middle" font-weight="700">Eval sul diff</text>
+    <text x="321" y="399" font-size="12" text-anchor="middle" fill="#52647a">oltre la tolleranza: blocco</text>
+    <path d="M406 384 L436 384" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="440" y="358" width="170" height="52" rx="8" fill="#fff" stroke="#bbc9d8"/>
+    <text x="525" y="380" font-size="14" text-anchor="middle" font-weight="700">Rilascio graduale</text>
+    <text x="525" y="399" font-size="12" text-anchor="middle" fill="#52647a">versione attiva per quota</text>
+    <path d="M610 384 L640 384" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="644" y="358" width="170" height="52" rx="8" fill="#fff" stroke="#bbc9d8"/>
+    <text x="729" y="380" font-size="14" text-anchor="middle" font-weight="700">Osservazione</text>
+    <text x="729" y="399" font-size="12" text-anchor="middle" fill="#52647a">accettazione per versione</text>
+    <path d="M814 384 L844 384" fill="none" stroke="#52647a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="848" y="358" width="160" height="52" rx="8" fill="#e3f3f1" stroke="#14766d"/>
+    <text x="928" y="380" font-size="14" text-anchor="middle" font-weight="700" fill="#14766d">Ritorno</text>
+    <text x="928" y="399" font-size="12" text-anchor="middle" fill="#14766d">configurazione o revert</text>
+
+    <rect x="32" y="436" width="976" height="66" rx="12" fill="#fff" stroke="#bbc9d8" stroke-dasharray="6 4"/>
+    <text x="52" y="463" font-size="15" font-weight="700">Ogni risposta registra</text>
+    <text x="52" y="486" font-size="15" fill="#52647a">promptId, promptVersion, model, identificativo di richiesta del fornitore. La chiave di cache include versione e modello.</text>
+
+    <text x="36" y="536" font-size="15" fill="#52647a">Il port nasconde l'SDK, non il prompt: un prompt messo a punto su un modello non è portabile senza ripetere gli eval.</text>
+  </g>
+</svg>
