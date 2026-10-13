@@ -34,8 +34,8 @@ I capitoli sono divisi in due sezioni. La prima segue un percorso dal problema d
 | 1.8 | [Testare l'architettura, oltre alla logica di business](articles/1.08-architecture-boundary-tests.md) | Come impediamo che i confini architetturali si erodano? | Completato |
 | 1.9 | [Dove dovrebbe finire una transazione?](articles/1.09-transactions-eventual-consistency.md) | Quali operazioni richiedono consistenza immediata? | Completato |
 | 1.10 | [I microservizi sono anche una decisione operativa](articles/1.10-distributed-systems-cost.md) | Quali benefici giustificano il costo operativo di un sistema distribuito? | Completato |
-| 1.11 | [Dalla palla di fango ai confini espliciti](articles/1.11-from-big-ball-of-mud.md) | Da dove si comincia a mettere ordine in un sistema esistente, e fino a dove conviene arrivare? | Bozza |
-| 1.12 | [Il debito tecnico si paga con gli interessi](articles/1.12-technical-debt.md) | Quanto debito possiamo permetterci, e chi ne paga gli interessi? | Bozza |
+| 1.11 | [Dalla palla di fango ai confini espliciti](articles/1.11-from-big-ball-of-mud.md) | Da dove si comincia a mettere ordine in un sistema esistente, e fino a dove conviene arrivare? | Completato |
+| 1.12 | [Il debito tecnico si paga con gli interessi](articles/1.12-technical-debt.md) | Quanto debito possiamo permetterci, e chi ne paga gli interessi? | Completato |
 | 1.13 | Proteggere una regola sotto concorrenza: lock, versione o `SERIALIZABLE`? | Quale meccanismo di coordinamento costa meno per questa regola? | Prossima pubblicazione |
 | 1.14 | Provare i guasti: outbox e consumer che si riprendono | Come dimostriamo che il sistema recupera, invece di sperarlo? | Prossima pubblicazione |
 | 1.15 | Idempotenza: cosa succede se il client riprova? | Possiamo ripetere una richiesta senza duplicarne l'effetto? | Prossima pubblicazione |
@@ -58,10 +58,10 @@ Il filo conduttore è quello del capitolo 1.7: il dominio non conosce HTTP, e no
 
 | # | Capitolo | Domanda centrale | Stato |
 | --- | --- | --- | --- |
-| 2.1 | [Il dominio non dovrebbe conoscere il modello](articles/2.01-domain-llm-boundary.md) | Se l'LLM sparisse domani, il caso d'uso avrebbe ancora senso? Dove vive l'adapter? | Bozza |
-| 2.2 | [Una chiamata al modello è una chiamata remota](articles/2.02-llm-call-is-remote-call.md) | Timeout, retry, idempotenza e costi in token: quale parte della resilienza già nota si applica? | Bozza |
-| 2.3 | [L'output del modello è input non fidato](articles/2.03-llm-output-untrusted-input.md) | Validiamo la risposta del modello come validiamo una richiesta HTTP? Dove fermiamo una prompt injection? | Bozza |
-| 2.4 | [Dire all'agente cosa ottenere, non come farlo](articles/2.04-outcome-over-procedure.md) | Stiamo descrivendo il procedimento o il risultato? E chi dimostra che il lavoro è finito? | Bozza |
+| 2.1 | [Il dominio non dovrebbe conoscere il modello](articles/2.01-domain-llm-boundary.md) | Se l'LLM sparisse domani, il caso d'uso avrebbe ancora senso? Dove vive l'adapter? | Completato |
+| 2.2 | [Una chiamata al modello è una chiamata remota](articles/2.02-llm-call-is-remote-call.md) | Timeout, retry, idempotenza e costi in token: quale parte della resilienza già nota si applica? | Completato |
+| 2.3 | [L'output del modello è input non fidato](articles/2.03-llm-output-untrusted-input.md) | Validiamo la risposta del modello come validiamo una richiesta HTTP? Dove fermiamo una prompt injection? | Completato |
+| 2.4 | [Dire all'agente cosa ottenere, non come farlo](articles/2.04-outcome-over-procedure.md) | Stiamo descrivendo il procedimento o il risultato? E chi dimostra che il lavoro è finito? | Completato |
 | 2.5 | [Esporre i casi d'uso come tool: l'agente chiama l'application service, non il database](articles/2.05-use-cases-as-tools.md) | Se un agente crea un todo, chi fa rispettare il limite dei tre attivi? | Bozza |
 | 2.6 | [Serve davvero un vector database?](articles/2.06-vector-database.md) | `pgvector` nel database che abbiamo o un servizio dedicato: quale complessità giustifica il secondo? | Bozza |
 | 2.7 | [Gli eval sono i test di un confine non deterministico](articles/2.07-evals-nondeterministic-boundary.md) | Come dimostriamo che una funzionalità basata su LLM non è peggiorata dopo un cambio di prompt o di modello? | Bozza |
